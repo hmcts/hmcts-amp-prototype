@@ -173,15 +173,7 @@ function formatDate (iso) {
 function renderConfirmation (application, secret) {
   set('created-name', application.name)
   set('client-id', application.clientId)
-  set('publisher-id', 'hmcts.api.marketplace')
   set('client-secret', secret)
-
-  const keys = document.getElementById('subscription-keys')
-  if (keys) {
-    keys.innerHTML = application.apis.map(api =>
-      row(api.text, `Subscription key: <span class="apim-credential">${application.clientId.replace(/-/g, '').slice(0, 24)}</span>`)
-    ).join('')
-  }
 
   const view = document.getElementById('view-application')
   if (view) view.setAttribute('href', `../../detail/?id=${application.id}`)
