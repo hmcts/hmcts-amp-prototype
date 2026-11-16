@@ -14,7 +14,7 @@
     
       
   
-  <link href="../../assets/main.css?v=aa908a666e" rel="stylesheet">
+  <link href="../../assets/main.css?v=159d275ef2" rel="stylesheet">
 
       </head>
   <body class="govuk-template__body">
@@ -238,16 +238,17 @@ data-module="govuk-service-navigation"
     <h2 class="govuk-heading-m" id="before-you-start">Before you start</h2>
 
     <p class="govuk-body">
-      Your API needs all six of these. If one is missing, it is best fixed before onboarding begins.
+      You need all six of these before onboarding can start. If anything is missing, fix it first.
     </p>
 
     <ol class="govuk-list govuk-list--number">
       <li>A clear description of your API, written as an OpenAPI specification, with sample responses
         &mdash; including what errors look like. Samples must not contain real data.</li>
       <li>Security checks in your API. It checks the security token on every call.</li>
-      <li>System-to-system sign-in (OAuth 2.0). Callers are applications, not people logging in.</li>
-      <li>Your API is running in each environment we connect to: a test environment with no live data,
-        and live.</li>
+      <li>System-to-system sign-in (OAuth 2.0). The applications that call your API sign in, not
+        people.</li>
+      <li>Your API running in each environment we connect to: a test environment with no live data,
+        and a live environment.</li>
       <li>Approval to share it with people outside your team.</li>
       <li>A private connection. The marketplace can reach your API privately, agreed with our platform
         team.</li>
@@ -261,76 +262,50 @@ data-module="govuk-service-navigation"
     <h2 class="govuk-heading-m" id="how-it-fits-together">How it fits together</h2>
 
     <p class="govuk-body">
-      Consumers find your API in the catalogue and sign up. Every call goes through our secure
-      gateway, which checks who is calling before anything reaches you. While consumers build their
-      integration, they use Try It Now: a practice copy of your API that returns your sample
-      responses. Once approved, their calls reach your real API.
+      Your API stays with your team. The marketplace puts the catalogue, the security checks and
+      Try it now in front of it. For a consumer, it works like this:
     </p>
 
-    
+    <ol class="govuk-list govuk-list--number">
+      <li>They find your API in the catalogue and sign up.</li>
+      <li>They build and test their integration using Try it now: a practice copy of your API that
+        returns your sample responses.</li>
+      <li>Once approved, their calls reach your real API.</li>
+    </ol>
 
     <p class="govuk-body">
-      Your API stays with your team. The marketplace adds the catalogue, the security checks and a
-      practice sandbox in front of it.
+      Every call goes through our secure gateway, which checks who is calling before anything
+      reaches you.
     </p>
 
     <h2 class="govuk-heading-m" id="how-onboarding-works">How onboarding works</h2>
 
-    <table class="govuk-table">
-  <caption class="govuk-table__caption govuk-visually-hidden">Onboarding steps</caption>
-  <thead class="govuk-table__head">
-    <tr class="govuk-table__row">
-          <th scope="col" class="govuk-table__header">Step</th>
-          <th scope="col" class="govuk-table__header">What happens</th>
-          <th scope="col" class="govuk-table__header">Who</th>
-        </tr>
-  </thead>
-  <tbody class="govuk-table__body">
-      <tr class="govuk-table__row">
-                      <th scope="row" class="govuk-table__header">1. Check you are ready</th>
-                            <td class="govuk-table__cell">Go through the list above.</td>
-                            <td class="govuk-table__cell">Your team</td>
-              </tr>
-        <tr class="govuk-table__row">
-                      <th scope="row" class="govuk-table__header">2. Agree the basics</th>
-                            <td class="govuk-table__cell">A short name for your API, which environments, and how we connect to it.</td>
-                            <td class="govuk-table__cell">Your team and API Marketplace</td>
-              </tr>
-        <tr class="govuk-table__row">
-                      <th scope="row" class="govuk-table__header">3. Set up secure access</th>
-                            <td class="govuk-table__cell">We create your API&#39;s security identity. Your team sets your API to accept tokens from it.</td>
-                            <td class="govuk-table__cell">Your team and API Marketplace</td>
-              </tr>
-        <tr class="govuk-table__row">
-                      <th scope="row" class="govuk-table__header">4. Connect</th>
-                            <td class="govuk-table__cell">We register your API on our gateway and open the private connection to it.</td>
-                            <td class="govuk-table__cell">Your team and API Marketplace</td>
-              </tr>
-        <tr class="govuk-table__row">
-                      <th scope="row" class="govuk-table__header">5. Build the practice sandbox</th>
-                            <td class="govuk-table__cell">We create Try It Now from your sample responses.</td>
-                            <td class="govuk-table__cell">Your team</td>
-              </tr>
-        <tr class="govuk-table__row">
-                      <th scope="row" class="govuk-table__header">6. List it and test it</th>
-                            <td class="govuk-table__cell">Your API appears in the catalogue, and we test the whole journey together.</td>
-                            <td class="govuk-table__cell">Your team and API Marketplace</td>
-              </tr>
-        <tr class="govuk-table__row">
-                      <th scope="row" class="govuk-table__header">7. Go live</th>
-                            <td class="govuk-table__cell">We release it on the live gateway, then your team publishes the API version.</td>
-                            <td class="govuk-table__cell">Your team and API Marketplace</td>
-              </tr>
-    </tbody>
-</table>
+    <p class="govuk-body">
+      Unless a step says otherwise, you and the API Marketplace team do it together.
+    </p>
 
+    <ol class="govuk-list govuk-list--number">
+      <li><strong>Check you are ready.</strong> Go through the
+        <a class="govuk-link" href="#before-you-start">Before you start</a> list above. You do this.</li>
+      <li><strong>Agree the basics.</strong> <a class="govuk-link" href="mailto:APIMarketplace@hmcts.net">Email us</a>.
+        We agree a short name for your API, which environments we connect to, and how we connect.</li>
+      <li><strong>Set up secure access.</strong> We create your API's security identity. Your team sets
+        your API to accept tokens from it.</li>
+      <li><strong>Connect.</strong> We register your API on our gateway and open the private
+        connection to it.</li>
+      <li><strong>Add your API to Try it now.</strong> Your team adds your API to Try it now.</li>
+      <li><strong>List it and test it.</strong> Your API appears in the catalogue, and we test the
+        whole journey together.</li>
+      <li><strong>Go live.</strong> We release it on the live gateway, then your team publishes the
+        API version.</li>
+    </ol>
 
     <h2 class="govuk-heading-m" id="what-you-get">What you get</h2>
 
     <ul class="govuk-list govuk-list--bullet">
       <li>A listing in the API Marketplace catalogue, with your documentation.</li>
       <li>Self-service sign-up, so consumers can register without emailing you.</li>
-      <li>Try It Now, so consumers can build and test against sample data before getting real access.</li>
+      <li>Try it now, so consumers can build and test against sample data before getting real access.</li>
       <li>A secure gateway that checks identity and limits traffic before calls reach you.</li>
     </ul>
 
@@ -444,6 +419,6 @@ data-module="govuk-service-navigation"
 
 
       
-  <script type="module" src="../../assets/main.js?v=aa908a666e"></script>
+  <script type="module" src="../../assets/main.js?v=159d275ef2"></script>
   </body>
 </html>

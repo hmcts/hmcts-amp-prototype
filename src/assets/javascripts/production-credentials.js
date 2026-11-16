@@ -1,4 +1,5 @@
 import { applications, answers, productionRequests } from './store.js'
+import { DATA_COMBINED, DATA_RECIPIENTS, ORGANISATION_TYPES, OWN_TEAM_ONLY, label, triageRows } from './triage.js'
 
 // Stands in for ProductionCredentialsController in web-api-marketplace: the same questions,
 // checks and messages, with the session and the backend replaced by browser storage.
@@ -16,7 +17,8 @@ const STATUS_TEXT = {
   DECLINED: 'Declined'
 }
 
-const FIELDS = ['organisation', 'go-live-day', 'go-live-month', 'go-live-year', 'call-volume', 'data-request', 'proposed-outputs']
+const TEXT_FIELDS = ['organisation', 'go-live-day', 'go-live-month', 'go-live-year', 'data-request', 'data-recipients-explanation', 'data-combined-description']
+const RADIO_FIELDS = ['call-volume', 'organisation-type', 'data-combined']
 
 function page () {
   const path = window.location.pathname.replace(/index\.html$/, '')
@@ -63,8 +65,11 @@ function validate (values) {
   } else if (productionRequests.forApplication(chosen.id)) {
     errors.push({ name: 'application', text: `${chosen.name} already has a production access request` })
   }
+  if (!ORGANISATION_TYPES.some(type => type.value === values['organisation-type'])) {
+    errors.push({ name: 'organisation-type', text: 'Select your organisation' })
+  }
   if (!values.organisation) {
-    errors.push({ name: 'organisation', text: 'Enter your organisation or team name' })
+    errors.push({ name: 'organisation', text: 'Enter your team name (and organisation if external to HMCTS)' })
   }
   const goLive = goLiveDate(values)
   if (!goLive) {
@@ -76,16 +81,59 @@ function validate (values) {
     errors.push({ name: 'call-volume', text: 'Select the expected call volume' })
   }
   if (!values['data-request']) {
-    errors.push({ name: 'data-request', text: 'Describe the data request, how you plan to use it and why you need it' })
+    errors.push({ name: 'data-request', text: 'Explain why you need access and how you will use the data' })
   } else if (values['data-request'].length > MAX_LENGTH) {
     errors.push({ name: 'data-request', text: `Your description must be ${MAX_LENGTH} characters or fewer` })
   }
-  if (!values['proposed-outputs']) {
-    errors.push({ name: 'proposed-outputs', text: 'Describe the proposed outputs from this data use' })
-  } else if (values['proposed-outputs'].length > MAX_LENGTH) {
-    errors.push({ name: 'proposed-outputs', text: `Your description must be ${MAX_LENGTH} characters or fewer` })
-  }
+  errors.push(...validateRecipients(values), ...validateCombined(values))
   return errors
+}
+
+function validateRecipients (values) {
+  const chosen = Array.isArray(values['data-recipients']) ? values['data-recipients'] : []
+  const explanation = values['data-recipients-explanation'] || ''
+  if (!chosen.length || !chosen.every(value => DATA_RECIPIENTS.some(option => option.value === value))) {
+    return [{ name: 'data-recipients', text: 'Select who will have access to, or receive, the data' }]
+  }
+  if (chosen.some(value => value !== OWN_TEAM_ONLY) && !explanation) {
+    return [{ name: 'data-recipients-explanation', text: 'Briefly explain who will receive the data and why' }]
+  }
+  if (explanation.length > MAX_LENGTH) {
+    return [{ name: 'data-recipients-explanation', text: `Your explanation must be ${MAX_LENGTH} characters or fewer` }]
+  }
+  return []
+}
+
+function validateCombined (values) {
+  const chosen = values['data-combined'] || ''
+  const description = values['data-combined-description'] || ''
+  if (!DATA_COMBINED.some(option => option.value === chosen)) {
+    return [{ name: 'data-combined', text: 'Select whether you will combine or link the API data with other data' }]
+  }
+  if (chosen !== 'no' && !description) {
+    return [{ name: 'data-combined-description', text: 'Briefly describe the other data and what the combined data will be used for' }]
+  }
+  if (description.length > MAX_LENGTH) {
+    return [{ name: 'data-combined-description', text: `Your description must be ${MAX_LENGTH} characters or fewer` }]
+  }
+  return []
+}
+
+// The real service's data-recipients and data-combined bundles: each follow-up box shows only once
+// an answer needs it. Without JavaScript the real service always shows them.
+function showFollowUpsWhenNeeded (form) {
+  const pairs = [
+    ['data-recipients-explanation-group', 'input[name="data-recipients"]', box => box.dataset.explanationNotNeeded !== 'true'],
+    ['data-combined-description-group', 'input[name="data-combined"]', option => option.value !== 'no']
+  ]
+  pairs.forEach(([groupId, selector, needs]) => {
+    const group = document.getElementById(groupId)
+    const inputs = Array.from(form.querySelectorAll(selector))
+    if (!group) return
+    const update = () => { group.hidden = !inputs.some(input => input.checked && needs(input)) }
+    inputs.forEach(input => input.addEventListener('change', update))
+    update()
+  })
 }
 
 function errorSummaryHtml (errors) {
@@ -121,11 +169,14 @@ function showErrors (form, errors) {
   document.title = 'Error: ' + document.title
 
   errors.forEach(error => {
+    const choice = form.querySelector(`input[name="${error.name}"]`)
     const field = error.name === 'application'
       ? form.querySelector('.govuk-radios')
       : error.name === 'go-live-day'
         ? form.querySelector('.govuk-date-input')
-        : document.getElementById(error.name)
+        : choice && (choice.type === 'radio' || choice.type === 'checkbox')
+          ? choice.closest('.govuk-radios, .govuk-checkboxes')
+          : document.getElementById(error.name)
     if (!field) return
     const group = field.closest('.govuk-form-group')
     group.classList.add('govuk-form-group--error')
@@ -170,25 +221,30 @@ function renderForm () {
   const saved = { ...answers.get(JOURNEY), ...(query('application') ? { application: query('application') } : {}) }
   form.querySelector('.govuk-radios').innerHTML = radiosHtml(choices, saved.application)
 
-  FIELDS.forEach(name => {
-    if (name === 'call-volume') {
-      const radio = form.querySelector(`input[name="call-volume"][value="${saved[name]}"]`)
-      if (radio) radio.checked = true
-      return
-    }
+  RADIO_FIELDS.forEach(name => {
+    const radio = form.querySelector(`input[name="${name}"][value="${saved[name]}"]`)
+    if (radio) radio.checked = true
+  })
+  ;(saved['data-recipients'] || []).forEach(value => {
+    const box = form.querySelector(`input[name="data-recipients"][value="${value}"]`)
+    if (box) box.checked = true
+  })
+  TEXT_FIELDS.forEach(name => {
     const field = document.getElementById(name)
     if (field && saved[name]) {
       field.value = saved[name]
       field.dispatchEvent(new Event('input'))
     }
   })
+  showFollowUpsWhenNeeded(form)
 
   form.addEventListener('submit', event => {
     event.preventDefault()
     const checked = name => (form.querySelector(`input[name="${name}"]:checked`) || {}).value || ''
-    const values = { application: checked('application'), 'call-volume': checked('call-volume') }
-    ;['organisation', 'go-live-day', 'go-live-month', 'go-live-year', 'data-request', 'proposed-outputs']
-      .forEach(name => { values[name] = (document.getElementById(name).value || '').trim() })
+    const values = { application: checked('application') }
+    RADIO_FIELDS.forEach(name => { values[name] = checked(name) })
+    values['data-recipients'] = Array.from(form.querySelectorAll('input[name="data-recipients"]:checked')).map(box => box.value)
+    TEXT_FIELDS.forEach(name => { values[name] = (document.getElementById(name).value || '').trim() })
 
     const errors = validate(values)
     showErrors(form, errors)
@@ -208,6 +264,18 @@ function summaryRowsHtml (rows, changeHref) {
     </div>`).join('')
 }
 
+// The triage answers as the real service sends them to the backend. The two explanations are left
+// out when empty rather than sent blank.
+function submission (draft) {
+  return {
+    organisationType: draft['organisation-type'],
+    dataRecipients: draft['data-recipients'] || [],
+    dataCombined: draft['data-combined'],
+    ...(draft['data-recipients-explanation'] ? { dataRecipientsExplanation: draft['data-recipients-explanation'] } : {}),
+    ...(draft['data-combined-description'] ? { dataCombinedDescription: draft['data-combined-description'] } : {})
+  }
+}
+
 function renderCheckAnswers () {
   const draft = answers.get(JOURNEY)
   const application = applications.find(draft.application)
@@ -221,11 +289,12 @@ function renderCheckAnswers () {
     list.innerHTML = summaryRowsHtml([
       { key: 'Application', value: application.name },
       { key: 'APIs', value: application.apis.map(api => api.text).join(', ') || 'None' },
-      { key: 'Organisation or team name', value: draft.organisation },
+      { key: 'Organisation', value: label(ORGANISATION_TYPES, draft['organisation-type']) },
+      { key: 'Team name (and organisation if external to HMCTS?)', value: draft.organisation },
       { key: 'Go-live date', value: formatDate(goLiveDate(draft).toISOString()) },
       { key: 'Expected call volume', value: CALL_VOLUMES[draft['call-volume']] },
       { key: 'Data request', value: draft['data-request'] },
-      { key: 'Proposed outputs', value: draft['proposed-outputs'] }
+      ...triageRows({ ...submission(draft), ...(draft['data-combined'] === 'no' ? { dataCombinedDescription: '' } : {}) })
     ], '../')
   }
 
@@ -240,7 +309,7 @@ function renderCheckAnswers () {
       goLiveDate: goLiveDate(draft).toISOString().slice(0, 10),
       callVolume: draft['call-volume'],
       dataRequest: draft['data-request'],
-      proposedOutputs: draft['proposed-outputs']
+      ...submission(draft)
     })
     if (!request) {
       // What the real service shows when the backend refuses a second request for an application.
@@ -278,11 +347,12 @@ function renderView () {
   document.getElementById('request-submitted').textContent = formatDate(request.submittedAt)
   document.getElementById('request-answers').innerHTML = summaryRowsHtml([
     { key: 'Application', value: request.applicationName },
-    { key: 'Organisation or team name', value: request.organisation },
+    ...(request.organisationType ? [{ key: 'Organisation', value: label(ORGANISATION_TYPES, request.organisationType) }] : []),
+    { key: 'Team name (and organisation if external to HMCTS?)', value: request.organisation },
     { key: 'Go-live date', value: formatDate(request.goLiveDate) },
     { key: 'Expected call volume', value: CALL_VOLUMES[request.callVolume] || request.callVolume },
     { key: 'Data request', value: request.dataRequest },
-    { key: 'Proposed outputs', value: request.proposedOutputs }
+    ...triageRows(request)
   ])
 }
 

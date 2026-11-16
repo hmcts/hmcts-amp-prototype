@@ -14,7 +14,7 @@
     
       
   
-  <link href="../../assets/main.css?v=aa908a666e" rel="stylesheet">
+  <link href="../../assets/main.css?v=159d275ef2" rel="stylesheet">
 
       </head>
   <body class="govuk-template__body">
@@ -233,8 +233,13 @@ data-module="govuk-service-navigation"
     <h1 class="govuk-heading-xl">Request production credentials</h1>
 
     <p class="govuk-body">
-      Production credentials let your application call our APIs with live data. Every production credentials
-      request is reviewed, and you will get an outcome within 5 working days of submitting it.
+      Production credentials let your application call our APIs with live data.
+    </p>
+
+    <p class="govuk-body">
+      We will review your request to check that access is appropriate and whether any further approval or
+      assurance is needed. Submitting this form does not give you access to the API or its data. We aim to tell
+      you the outcome within 5 working days.
     </p>
 
     
@@ -260,8 +265,43 @@ data-module="govuk-service-navigation"
 
 
       <div class="govuk-form-group">
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+      Organisation
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+                                <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="organisation-type" name="organisation-type" type="radio" value="hmcts">
+      <label class="govuk-label govuk-radios__label" for="organisation-type">
+        HMCTS
+      </label>
+          </div>
+                                  <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="organisation-type-2" name="organisation-type" type="radio" value="moj">
+      <label class="govuk-label govuk-radios__label" for="organisation-type-2">
+        Ministry of Justice
+      </label>
+          </div>
+                                  <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="organisation-type-3" name="organisation-type" type="radio" value="other-government">
+      <label class="govuk-label govuk-radios__label" for="organisation-type-3">
+        Other government department/public body
+      </label>
+          </div>
+                                  <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="organisation-type-4" name="organisation-type" type="radio" value="external">
+      <label class="govuk-label govuk-radios__label" for="organisation-type-4">
+        Other external organisation
+      </label>
+          </div>
+                </div>
+</fieldset>
+</div>
+
+
+      <div class="govuk-form-group">
   <label class="govuk-label govuk-label--m" for="organisation">
-    Organisation or team name
+    Team name (and organisation if external to HMCTS?)
   </label>
   <input                                                                                                                                                                                                                                                                                                                                                                 class="govuk-input" id="organisation" name="organisation" type="text" autocomplete="organization">
 </div>
@@ -345,25 +385,128 @@ data-module="govuk-service-navigation"
 
       <div class="govuk-form-group govuk-character-count"                                                                                                                               data-module="govuk-character-count" data-maxlength="2000">
   <label class="govuk-label govuk-label--m" for="data-request">
-    Please provide a description of the data request, how you plan to use this data for each API selected in the above application, whether this data will be used in conjunction with any other data (if so, how), and an explanation of why this data is required.
+    Why do you need access and how will you use the data?
   </label>
-  <textarea class="govuk-textarea govuk-js-character-count" id="data-request" name="data-request" rows="5" aria-describedby="data-request-info"></textarea>
+      <div id="data-request-hint" class="govuk-hint">
+    For each API, briefly describe the business purpose, what you are trying to achieve and how the API data will be used
+  </div>
+  <textarea class="govuk-textarea govuk-js-character-count" id="data-request" name="data-request" rows="5" aria-describedby="data-request-info data-request-hint"></textarea>
   <div id="data-request-info" class="govuk-hint govuk-character-count__message">
     You can enter up to 2000 characters
   </div>
 </div>
 
 
-      <div class="govuk-form-group govuk-character-count"                                                                                                                               data-module="govuk-character-count" data-maxlength="2000">
-  <label class="govuk-label govuk-label--m" for="proposed-outputs">
-    Please describe any proposed outputs from this data use for each API selected in the above application, including what the output aims to achieve, and how/where it will be shared.
+      <div class="govuk-form-group">
+  <fieldset class="govuk-fieldset" aria-describedby="data-recipients-hint">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+      Who will have access to, or receive, the data?
+    </legend>
+    <div id="data-recipients-hint" class="govuk-hint">
+    Select all that apply.
+  </div>
+  <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                                          <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="data-recipients" name="data-recipients" type="checkbox" value="own-team"                                               data-explanation-not-needed="true">
+      <label class="govuk-label govuk-checkboxes__label" for="data-recipients">
+        Me/my immediate team only
+      </label>
+          </div>
+                                            <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="data-recipients-2" name="data-recipients" type="checkbox" value="other-hmcts">
+      <label class="govuk-label govuk-checkboxes__label" for="data-recipients-2">
+        Other HMCTS teams
+      </label>
+          </div>
+                                            <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="data-recipients-3" name="data-recipients" type="checkbox" value="wider-moj">
+      <label class="govuk-label govuk-checkboxes__label" for="data-recipients-3">
+        Wider MOJ
+      </label>
+          </div>
+                                            <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="data-recipients-4" name="data-recipients" type="checkbox" value="other-government">
+      <label class="govuk-label govuk-checkboxes__label" for="data-recipients-4">
+        Another government department/public body
+      </label>
+          </div>
+                                            <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="data-recipients-5" name="data-recipients" type="checkbox" value="supplier">
+      <label class="govuk-label govuk-checkboxes__label" for="data-recipients-5">
+        Supplier/contract/delivery partner
+      </label>
+          </div>
+                                            <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="data-recipients-6" name="data-recipients" type="checkbox" value="external">
+      <label class="govuk-label govuk-checkboxes__label" for="data-recipients-6">
+        Other external organisation
+      </label>
+          </div>
+                                            <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="data-recipients-7" name="data-recipients" type="checkbox" value="public">
+      <label class="govuk-label govuk-checkboxes__label" for="data-recipients-7">
+        The data will be published or used in a public-facing service
+      </label>
+          </div>
+                </div>
+</fieldset>
+</div>
+
+
+      <div id="data-recipients-explanation-group">
+        <div class="govuk-form-group govuk-character-count"                                                                                                                               data-module="govuk-character-count" data-maxlength="2000">
+  <label class="govuk-label govuk-label--s" for="data-recipients-explanation">
+    Briefly explain who will receive the data and why
   </label>
-  <textarea class="govuk-textarea govuk-js-character-count" id="proposed-outputs" name="proposed-outputs" rows="5" aria-describedby="proposed-outputs-info"></textarea>
-  <div id="proposed-outputs-info" class="govuk-hint govuk-character-count__message">
+  <textarea class="govuk-textarea govuk-js-character-count" id="data-recipients-explanation" name="data-recipients-explanation" rows="5" aria-describedby="data-recipients-explanation-info"></textarea>
+  <div id="data-recipients-explanation-info" class="govuk-hint govuk-character-count__message">
     You can enter up to 2000 characters
   </div>
 </div>
 
+      </div>
+
+      <div class="govuk-form-group">
+  <fieldset class="govuk-fieldset">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+      Will you combine or link the API data with other data?
+    </legend>
+    <div class="govuk-radios" data-module="govuk-radios">
+                                <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="data-combined" name="data-combined" type="radio" value="no">
+      <label class="govuk-label govuk-radios__label" for="data-combined">
+        No
+      </label>
+          </div>
+                                  <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="data-combined-2" name="data-combined" type="radio" value="yes">
+      <label class="govuk-label govuk-radios__label" for="data-combined-2">
+        Yes
+      </label>
+          </div>
+                                  <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="data-combined-3" name="data-combined" type="radio" value="unsure">
+      <label class="govuk-label govuk-radios__label" for="data-combined-3">
+        Unsure
+      </label>
+          </div>
+                </div>
+</fieldset>
+</div>
+
+
+      <div id="data-combined-description-group">
+        <div class="govuk-form-group govuk-character-count"                                                                                                                               data-module="govuk-character-count" data-maxlength="2000">
+  <label class="govuk-label govuk-label--s" for="data-combined-description">
+    Briefly describe the other data and what the combined data will be used for?
+  </label>
+  <textarea class="govuk-textarea govuk-js-character-count" id="data-combined-description" name="data-combined-description" rows="5" aria-describedby="data-combined-description-info"></textarea>
+  <div id="data-combined-description-info" class="govuk-hint govuk-character-count__message">
+    You can enter up to 2000 characters
+  </div>
+</div>
+
+      </div>
 
               <button type="submit" class="govuk-button" data-module="govuk-button"                                               id="production-continue">
   Continue
@@ -472,6 +615,6 @@ data-module="govuk-service-navigation"
 
 
       
-  <script type="module" src="../../assets/main.js?v=aa908a666e"></script>
+  <script type="module" src="../../assets/main.js?v=159d275ef2"></script>
   </body>
 </html>
