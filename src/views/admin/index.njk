@@ -16,17 +16,8 @@
 
   <div class="govuk-grid-row" id="admin-counts"></div>
 
-  <h2 class="govuk-heading-l">Waiting longest</h2>
-  <p class="govuk-body">Production credentials requests that are still Submitted, oldest first.</p>
-  <div id="admin-waiting"></div>
-  <p class="govuk-body"><a class="govuk-link" href="/admin/requests">See all production requests</a></p>
-
-  <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-
-  <p class="govuk-body">
-    You are signed in as <strong data-user-name></strong> (<span data-user-email></span>).
-    <a class="govuk-link" href="/" data-action="sign-out">Sign out</a>
-  </p>
+  {# No "waiting longest" list: every request stays Submitted until the service tracks review, so how
+     long one has waited says nothing yet. It can come back with the application and request workflow. #}
 </div>
 </div>
 {% endblock %}

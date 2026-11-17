@@ -11,13 +11,8 @@ export const DUMMY_USER = {
   name: 'John Doe'
 }
 
-// A Marketplace Team member, for the admin pages. The real service has no admin role yet.
-const ADMIN_USER = {
-  oid: '00000000-0000-4000-8000-0000000ad000',
-  email: 'marketplace.admin@example.com',
-  name: 'Alex Admin',
-  role: 'admin'
-}
+// A signed-in user carries `permissions`. Everyone is a 'consumer'; 'admin' adds the admin pages
+// for the Marketplace Team on top. The real service has no permissions yet.
 
 const LAST_SIGN_IN_KEY = 'ampPrototypeLastSignIn'
 
@@ -38,17 +33,25 @@ function write (key, value) {
 
 export const user = {
   current () {
-    return read(USER_KEY, null)
+    const stored = read(USER_KEY, null)
+    if (!stored || stored.permissions) return stored
+    // Signed in before permissions existed: the old separate admin becomes the example user
+    // with the admin permission.
+    return { ...DUMMY_USER, permissions: stored.role === 'admin' ? ['consumer', 'admin'] : ['consumer'] }
   },
-  signIn (role) {
-    const signedIn = role === 'admin' ? ADMIN_USER : DUMMY_USER
+  // The example user, with the admin permission too when asked for.
+  signIn (withAdmin) {
+    const signedIn = { ...DUMMY_USER, permissions: withAdmin ? ['consumer', 'admin'] : ['consumer'] }
     write(USER_KEY, signedIn)
-    if (signedIn === DUMMY_USER) write(LAST_SIGN_IN_KEY, new Date().toISOString())
+    write(LAST_SIGN_IN_KEY, new Date().toISOString())
     return signedIn
   },
-  isAdmin () {
+  can (permission) {
     const current = this.current()
-    return !!current && current.role === 'admin'
+    return !!current && current.permissions.includes(permission)
+  },
+  isAdmin () {
+    return this.can('admin')
   },
   // When the example user last signed in, for the admin pages' Users table.
   lastSignIn () {
