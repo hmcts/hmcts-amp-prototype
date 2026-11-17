@@ -9,8 +9,12 @@ the MVP front end from [`hmcts/web-api-marketplace`](https://github.com/hmcts/we
 real service), with everything the backend does faked in the browser. Phase 2 changes are designed and
 prototyped here from that baseline, for demonstration and discussion. Nothing here goes to production.
 
-Published at <https://hmcts.github.io/hmcts-api-marketplace-prototype/> — GitHub Pages serves `docs/`
-from `main`. The repo is **public**.
+The repo is [`hmcts/hmcts-amp-prototype`](https://github.com/hmcts/hmcts-amp-prototype), and it is **public**.
+GitHub Pages serves `docs/` from `main` at <https://hmcts.github.io/hmcts-amp-prototype/>.
+
+Until 17 November 2026 it was `hmcts/hmcts-api-marketplace-prototype`. GitHub blocked that repo, so
+`main` and the open branches were pushed here; its other branches, including `main-old`, were not.
+The "old PR" numbers below are from that repo and can no longer be opened.
 
 ## The real product is the baseline
 
@@ -26,7 +30,7 @@ Read them alongside; don't link them in (no submodules, no shared packages). Loc
 `CLAUDE.local.md`.
 
 **In step with:** `web-api-marketplace` `master` at `a8a609b` (13 November 2026). First ported from
-`1a792f3` (28 October 2026) in PR #79; re-synced with `9a33edd` in PR #89 (application limit, one
+`1a792f3` (28 October 2026) in old PR #79; re-synced with `9a33edd` in old PR #89 (application limit, one
 production request per application, the "creating" message, producer guides off the documentation
 index), then with `50036b2` (reviewers called the Data Access Team, not the Data Access Panel), then
 with `6c3a9a7` (an outcome within 5 working days; the request page's statuses list removed), then
