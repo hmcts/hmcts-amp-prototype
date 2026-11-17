@@ -16,8 +16,6 @@ const STATUS_TEXT = {
 
 const CALL_VOLUMES = { low: 'Low', medium: 'Medium', high: 'High' }
 
-const DAY = 24 * 60 * 60 * 1000
-
 function page () {
   const path = window.location.pathname.replace(/index\.html$/, '')
   const match = path.match(/\/admin\/(.*)$/)
@@ -148,7 +146,6 @@ function requestsTable (data, requests, depth, emptyText) {
 }
 
 function renderOverview (data) {
-  const open = data.requests.filter(r => r.status === 'SUBMITTED')
   const counts = [
     [data.users.length, 'registered user', 'registered users', 'users/'],
     [data.applications.length, 'application', 'applications', 'applications/'],
@@ -163,17 +160,6 @@ function renderOverview (data) {
         </a>
       </p>
     </div>`).join('')
-
-  const now = Date.now()
-  const oldest = open.slice().sort((a, b) => a.submittedAt.localeCompare(b.submittedAt)).slice(0, 5)
-  document.getElementById('admin-waiting').innerHTML = table('Requests waiting longest',
-    ['Reference', 'Application', 'Organisation', 'Waiting'],
-    oldest.map(r => [
-      link(`requests/detail/?reference=${r.reference}`, r.reference, 'apim-reference'),
-      escapeHtml(r.applicationName),
-      escapeHtml(r.organisation),
-      plural(Math.max(0, Math.floor((now - new Date(r.submittedAt).getTime()) / DAY)), 'day', 'days')
-    ]), 'No requests are waiting.')
 }
 
 function renderUsers (data) {

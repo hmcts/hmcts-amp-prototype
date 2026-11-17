@@ -1,11 +1,12 @@
-import { initAll } from './govuk-frontend.min.js?v=159d275ef2'
+import { initAll } from './govuk-frontend.min.js?v=876ea8c14c'
 // First, so a ?features= link is applied before any page script checks a feature.
-import './features.js?v=159d275ef2'
-import { user } from './store.js?v=159d275ef2'
-import './applications.js?v=159d275ef2'
-import './production-credentials.js?v=159d275ef2'
-import './admin.js?v=159d275ef2'
-import './prototype-settings.js?v=159d275ef2'
+import './features.js?v=876ea8c14c'
+import { features } from './features.js?v=876ea8c14c'
+import { user } from './store.js?v=876ea8c14c'
+import './applications.js?v=876ea8c14c'
+import './production-credentials.js?v=876ea8c14c'
+import './admin.js?v=876ea8c14c'
+import './prototype-settings.js?v=876ea8c14c'
 
 initAll()
 
@@ -21,27 +22,28 @@ function applyNavigation (signedIn) {
   const link = last && last.querySelector('a')
   if (!link) return
 
-  if (signedIn && signedIn.role === 'admin') {
-    // An admin is not a consumer: Admin replaces Your account and Applications.
-    link.textContent = 'Admin'
-    link.setAttribute('href', link.getAttribute('href').replace(/(sign-in|account)\/?$/, 'admin/'))
-    last.classList.toggle('govuk-service-navigation__item--active', /\/admin\//.test(window.location.pathname))
-    return
+  if (!signedIn) return
+  link.textContent = 'Your account'
+  link.setAttribute('href', link.getAttribute('href').replace(/sign-in\/?$/, 'account/'))
+  addItem(list, last, 'applications', 'Applications', 'account/applications/')
+  // The admin permission adds Admin alongside the consumer items, not instead of them.
+  if (features.isOn('admin-dashboard') && signedIn.permissions.includes('admin')) {
+    addItem(list, last, 'admin', 'Admin', 'admin/', /\/admin\//.test(window.location.pathname))
   }
+}
 
-  if (signedIn) {
-    link.textContent = 'Your account'
-    link.setAttribute('href', link.getAttribute('href').replace(/sign-in\/?$/, 'account/'))
-    if (!list.querySelector('[data-nav="applications"]')) {
-      const applications = last.cloneNode(true)
-      applications.setAttribute('data-nav', 'applications')
-      applications.classList.remove('govuk-service-navigation__item--active')
-      const anchor = applications.querySelector('a')
-      anchor.textContent = 'Applications'
-      anchor.setAttribute('href', link.getAttribute('href').replace(/account\/$/, 'account/applications/'))
-      list.insertBefore(applications, last)
-    }
-  }
+// A navigation item before Your account, made from it so the classes and relative link match.
+function addItem (list, last, name, text, path, active) {
+  if (list.querySelector(`[data-nav="${name}"]`)) return
+  const item = last.cloneNode(true)
+  item.setAttribute('data-nav', name)
+  item.classList.toggle('govuk-service-navigation__item--active', !!active)
+  const anchor = item.querySelector('a')
+  anchor.textContent = text
+  anchor.setAttribute('href', last.querySelector('a').getAttribute('href').replace(/account\/$/, path))
+  if (active) anchor.setAttribute('aria-current', 'page')
+  else anchor.removeAttribute('aria-current')
+  list.insertBefore(item, last)
 }
 
 function applySignedInState () {
@@ -58,7 +60,7 @@ document.addEventListener('click', event => {
   if (!action) return
   if (action.dataset.action === 'sign-in') {
     event.preventDefault()
-    user.signIn(action.dataset.role)
+    user.signIn(action.dataset.permission === 'admin')
     window.location.href = action.getAttribute('href') || './'
   }
   if (action.dataset.action === 'sign-out') {
