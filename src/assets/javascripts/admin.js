@@ -1,5 +1,6 @@
 import { user, applications, productionRequests, DUMMY_USER } from './store.js'
 import { features } from './features.js'
+import { ORGANISATION_TYPES, label, triageRows } from './triage.js'
 
 // The admin pages. The real service has no admin role or cross-user reads yet, so this is a
 // read-only design: made-up users, applications and requests from admin-seed.json, plus the
@@ -291,7 +292,8 @@ function renderRequest (data) {
   const application = data.application(found.applicationId)
   document.getElementById('admin-request-who').innerHTML = summaryRows([
     ['Requested by', owner ? `${link(`../../users/detail/?id=${encodeURIComponent(owner.id)}`, owner.name)}<br>${escapeHtml(owner.email)}` : 'Not known'],
-    ['Organisation or team name', escapeHtml(found.organisation)],
+    ...(found.organisationType ? [['Organisation', escapeHtml(label(ORGANISATION_TYPES, found.organisationType))]] : []),
+    ['Team name (and organisation if external to HMCTS?)', escapeHtml(found.organisation)],
     ['Application', application ? link(`../../applications/detail/?id=${application.id}`, application.name) : escapeHtml(found.applicationName)],
     ['APIs', escapeHtml(application ? application.apis.map(api => api.text).join(', ') || 'None' : (found.apis || []).join(', '))]
   ])
@@ -300,7 +302,7 @@ function renderRequest (data) {
     ['Go-live date', formatDate(found.goLiveDate)],
     ['Expected call volume', escapeHtml(CALL_VOLUMES[found.callVolume] || found.callVolume)],
     ['Data request', escapeHtml(found.dataRequest)],
-    ['Proposed outputs', escapeHtml(found.proposedOutputs)]
+    ...triageRows(found).map(row => [row.key, escapeHtml(row.value)])
   ])
 }
 

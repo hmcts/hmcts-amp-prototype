@@ -1,4 +1,4 @@
-import featureList from './feature-list.js?v=aa908a666e'
+import featureList from './feature-list.js?v=159d275ef2'
 
 // Phase 2 features can be switched on and off, so the prototype can show "feature X but not
 // feature Y". The list and each feature's default come from src/data/features.json, written

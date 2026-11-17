@@ -3,6 +3,7 @@ import { mkdir, readFile, readdir, writeFile, cp, rm } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 import nunjucks from 'nunjucks'
 import * as sass from 'sass'
+import { DATA_COMBINED, DATA_RECIPIENTS, ORGANISATION_TYPES, OWN_TEAM_ONLY } from '../src/assets/javascripts/triage.js'
 
 const root = new URL('..', import.meta.url).pathname
 const out = join(root, 'docs')
@@ -23,6 +24,13 @@ env.addGlobal('callVolumes', [
   { value: 'high', text: 'High', hint: { text: 'Over 100,000 calls per day' } }
 ])
 env.addGlobal('dataAnswerMaxLength', 2000)
+// The triage questions' options, as the controller builds them with nothing yet chosen.
+env.addGlobal('organisationTypeItems', ORGANISATION_TYPES)
+env.addGlobal('dataRecipientItems', DATA_RECIPIENTS.map(option => ({
+  ...option,
+  attributes: option.value === OWN_TEAM_ONLY ? { 'data-explanation-not-needed': 'true' } : undefined
+})))
+env.addGlobal('dataCombinedItems', DATA_COMBINED)
 env.addGlobal('answers', {})
 env.addGlobal('errorFor', {})
 // "2 October 2026" from a stored ISO timestamp, as the real service formats dates.
