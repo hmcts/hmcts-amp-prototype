@@ -3,28 +3,29 @@
 Prototypes built for demonstration and discussion.
 
 Nothing here is production code, and none of it will progress to a production environment. No real
-data, no secrets. The earlier marketplace prototype is on the `main-old` branch.
+data, no secrets.
 
 ## Where it is published
 
-<https://hmcts.github.io/hmcts-api-marketplace-prototype/>
+<https://hmcts.github.io/hmcts-amp-prototype/>
 
 GitHub Pages serves `docs/` from `main`. A push to `main` rebuilds the site on its own, but
 changing the Pages source branch does not — if the site is stale after a settings change, ask for
 a build:
 
 ```bash
-gh api -X POST repos/hmcts/hmcts-api-marketplace-prototype/pages/builds
+gh api -X POST repos/hmcts/hmcts-amp-prototype/pages/builds
 ```
 
 Check what is actually deployed, rather than assuming the latest commit is live:
 
 ```bash
-gh api repos/hmcts/hmcts-api-marketplace-prototype/pages/builds/latest --jq '{status, commit}'
+gh api repos/hmcts/hmcts-amp-prototype/pages/builds/latest --jq '{status, commit}'
 ```
 
-The previous marketplace site is on the `main-old` branch. Pointing Pages back at it is a
-settings change, not a revert.
+This repo replaces `hmcts/hmcts-api-marketplace-prototype`, which GitHub blocked in November 2026.
+`main` and the open branches were moved here; the earlier marketplace prototype on that repo's
+`main-old` branch was not.
 
 ## This prototype
 
