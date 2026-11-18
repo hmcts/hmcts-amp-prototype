@@ -21,8 +21,7 @@
   { "view": "content/documentation/glossary.njk",                "url": "/documentation/glossary/" },
   { "view": "content/documentation/our-api-technologies.njk",    "url": "/documentation/our-api-technologies/" },
   { "view": "content/documentation/our-capabilities.njk",        "url": "/documentation/our-capabilities/" },
-  { "view": "content/documentation/producer-guidance.njk",       "url": "/documentation/producer-guidance/" },
-  { "view": "content/documentation/producer-standards.njk",      "url": "/documentation/producer-standards/" },
+  { "view": "content/documentation/producer-onboarding.njk",     "url": "/documentation/producer-onboarding/" },
   { "view": "content/documentation/resources.njk",               "url": "/documentation/resources/" },
   { "view": "content/documentation/technology-introduction.njk", "url": "/documentation/technology-introduction/" },
 
