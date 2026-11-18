@@ -29,7 +29,7 @@ and not the handover:
 Read them alongside; don't link them in (no submodules, no shared packages). Local clone paths are in
 `CLAUDE.local.md`.
 
-**In step with:** `web-api-marketplace` `master` at `a8a609b` (13 November 2026). First ported from
+**In step with:** `web-api-marketplace` `master` at `3c76d69` (18 November 2026). First ported from
 `1a792f3` (28 October 2026) in old PR #79; re-synced with `9a33edd` in old PR #89 (application limit, one
 production request per application, the "creating" message, producer guides off the documentation
 index), then with `50036b2` (reviewers called the Data Access Team, not the Data Access Panel), then
@@ -38,9 +38,11 @@ with `b641dd1` (browsing the catalogue and Try it now as separate Get started st
 with `43f58ad` (access-token instructions for each API on the application page), then
 with `26a5490` (Producer Onboarding steps and the producer pages renamed, the catalogue from the
 backend, a simpler "application created" page), then with `a8a609b` (triage questions on the
-production credentials request form, Producer Onboarding tidied). Update
+production credentials request form, Producer Onboarding tidied), then with `3c76d69` (Producer
+Onboarding at `/documentation/producer-onboarding`, the Producer Guidance page removed because its content
+is not for the public domain, the documentation guides split into consumers and producers). Update
 this line whenever the prototype is re-synced. To see what has changed since, run
-`git diff a8a609b origin/master -- src/main/views src/main/controllers src/main/services` in the
+`git diff 3c76d69 origin/master -- src/main/views src/main/controllers src/main/services` in the
 `web-api-marketplace` clone.
 
 **Before prototyping a change,** compare the pages involved with the same files on `web-api-marketplace`
