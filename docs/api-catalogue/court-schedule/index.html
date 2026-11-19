@@ -2,7 +2,7 @@
 <html lang="en" class="govuk-template govuk-template--rebranded">
   <head>
     <meta charset="utf-8">
-    <title>undefined - API catalogue - HMCTS API Marketplace - GOV.UK</title>
+    <title>Court Schedule - API catalogue - HMCTS API Marketplace - GOV.UK</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#1d70b8">
 
@@ -14,7 +14,7 @@
     
       
   
-  <link href="../../assets/main.css?v=7fa87a5955" rel="stylesheet">
+  <link href="../../assets/main.css?v=dab149bd40" rel="stylesheet">
 
       </head>
   <body class="govuk-template__body">
@@ -227,9 +227,13 @@ data-module="govuk-service-navigation"
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
 
-    <h1 class="govuk-heading-xl"></h1>
+    <h1 class="govuk-heading-xl">Court Schedule</h1>
 
-    
+          <h2 class="govuk-heading-m">What does this API do?</h2>
+
+              <p class="govuk-body">Hearing schedules for a court, by date and courtroom.</p>
+              <p class="govuk-body">Each hearing has its case number, hearing type, courtroom and start time. Schedules change during the day, so call it again rather than keeping a copy for long.</p>
+          
     <h2 class="govuk-heading-m">Use this API</h2>
 
     <p class="govuk-body">
@@ -244,7 +248,8 @@ data-module="govuk-service-navigation"
     </p>
 
     <p class="govuk-body">
-              You need a <a class="govuk-link" href="../../sign-in?prompt=create">developer account</a> to create an application.
+      
+              <span data-when="signed-out">You need a <a class="govuk-link" href="../../sign-in?prompt=create">developer account</a> to create an application.</span>
             Read the <a class="govuk-link" href="../../documentation/consumer-guidance">consumer guidance</a> before you start.
       See <a class="govuk-link" href="../../get-started#browse-the-catalogue">how browsing differs from Try it now</a>.
     </p>
@@ -257,8 +262,40 @@ data-module="govuk-service-navigation"
 
     <h2 class="govuk-heading-m">About this API</h2>
 
-                                                              <dl class="govuk-summary-list"                                               id="about-this-api">
-</dl>
+                                                                                                                              <dl class="govuk-summary-list"                                               id="about-this-api">
+    <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+      Owning team
+    </dt>
+    <dd class="govuk-summary-list__value">
+      Example Listing Team
+    </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+      Platform
+    </dt>
+    <dd class="govuk-summary-list__value">
+      Example Platform
+    </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+      Domain
+    </dt>
+    <dd class="govuk-summary-list__value">
+      Listing
+    </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+      Short code
+    </dt>
+    <dd class="govuk-summary-list__value">
+      court-schedule
+    </dd>
+      </div>
+  </dl>
 
     
   </div>
@@ -364,6 +401,6 @@ data-module="govuk-service-navigation"
 
 
       
-  <script type="module" src="../../assets/main.js?v=7fa87a5955"></script>
+  <script type="module" src="../../assets/main.js?v=dab149bd40"></script>
   </body>
 </html>
