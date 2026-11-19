@@ -2,22 +2,25 @@
 
 {% set pageTitle = "Admin - HMCTS API Marketplace - GOV.UK" %}
 {% set section = "admin" %}
-{% set breadcrumbs = [{ text: "Home", href: "/" }] %}
+{% set hideBackLink = true %}
 
-{# Not in the real service, which has no admin role yet. A read-only view for the Marketplace
-   Team, built by admin.js from made-up seed data plus whatever this browser has created. #}
+{# The real service's admin.njk is the heading alone, for the ADMIN role. The admin dashboard
+   feature adds a read-only view for the Marketplace Team, built by admin.js from made-up seed
+   data plus whatever this browser has created. #}
 {% block content %}
-<div data-feature-page="admin-dashboard">
 {% include "admin/denied.njk" %}
 
 <div id="admin-content" hidden>
-  <span class="govuk-caption-xl">Marketplace Team</span>
-  <h1 class="govuk-heading-xl">Admin</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div data-feature="admin-dashboard" hidden><span class="govuk-caption-xl">Marketplace Team</span></div>
+      <h1 class="govuk-heading-xl">Admin</h1>
+    </div>
+  </div>
 
-  <div class="govuk-grid-row" id="admin-counts"></div>
+  <div class="govuk-grid-row" id="admin-counts" data-feature="admin-dashboard" hidden></div>
 
   {# No "waiting longest" list: every request stays Submitted until the service tracks review, so how
      long one has waited says nothing yet. It can come back with the application and request workflow. #}
-</div>
 </div>
 {% endblock %}

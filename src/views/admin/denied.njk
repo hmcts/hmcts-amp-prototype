@@ -1,6 +1,7 @@
-{# Shown instead of an admin page to anyone without the admin permission. admin.js picks which. #}
+{# Anyone without the ADMIN role gets the app's own not found page in the real service
+   (AdminController), so this is the not found page. admin.js picks which to show. #}
 <div id="admin-denied" hidden>
-  <h1 class="govuk-heading-xl">You need admin permission</h1>
-  <p class="govuk-body">These pages are for the Marketplace Team.</p>
-  <p class="govuk-body"><a class="govuk-link" href="/sign-in">Sign in with admin permission</a></p>
+  <h1 class="govuk-heading-xl">Page not found</h1>
+  <p class="govuk-body-m">If you typed the web address, check it is correct.</p>
+  <p class="govuk-body-m">If you pasted the web address, check you copied the entire address.</p>
 </div>

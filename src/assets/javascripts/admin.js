@@ -2,9 +2,10 @@ import { user, applications, productionRequests, DUMMY_USER } from './store.js'
 import { features } from './features.js'
 import { ORGANISATION_TYPES, label, triageRows } from './triage.js'
 
-// The admin pages. The real service has no admin role or cross-user reads yet, so this is a
-// read-only design: made-up users, applications and requests from admin-seed.json, plus the
-// example user's own applications and requests from this browser.
+// The admin pages. The real service has an Admin page for the ADMIN role, with nothing on it
+// yet, and no cross-user reads. The admin dashboard feature is a read-only design on top: made-up
+// users, applications and requests from admin-seed.json, plus the example user's own
+// applications and requests from this browser.
 
 const STATUS_TEXT = {
   SUBMITTED: 'Submitted',
@@ -305,8 +306,10 @@ const RENDERERS = {
 async function start () {
   const current = page()
   if (current === null || !(current in RENDERERS)) return
-  // Switched off, features.js has already replaced the page with a message.
-  if (!features.isOn('admin-dashboard')) return
+  const dashboard = features.isOn('admin-dashboard')
+  // Only the Admin page itself is in the real service. With the feature off, features.js has
+  // already replaced the other admin pages with a message.
+  if (current !== '' && !dashboard) return
 
   const content = document.getElementById('admin-content')
   const denied = document.getElementById('admin-denied')
@@ -314,7 +317,7 @@ async function start () {
     denied.hidden = false
     return
   }
-  RENDERERS[current](await loadData())
+  if (dashboard) RENDERERS[current](await loadData())
   content.hidden = false
 }
 
