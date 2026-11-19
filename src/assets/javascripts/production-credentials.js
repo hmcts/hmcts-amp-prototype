@@ -1,5 +1,7 @@
 import { applications, answers, productionRequests } from './store.js'
+import { features } from './features.js'
 import { DATA_COMBINED, DATA_RECIPIENTS, ORGANISATION_TYPES, OWN_TEAM_ONLY, label, triageRows } from './triage.js'
+import { FEATURE, coverage, latestRequest, requestApis, statusSummary, statusTag, uncovered } from './request-apis.js'
 
 // Stands in for ProductionCredentialsController in web-api-marketplace: the same questions,
 // checks and messages, with the session and the backend replaced by browser storage.
@@ -62,6 +64,14 @@ function validate (values) {
   const chosen = applications.find(values.application)
   if (!chosen) {
     errors.push({ name: 'application', text: 'Select the application you need production credentials for' })
+  } else if (perApi()) {
+    const open = uncovered(chosen).map(api => api.value)
+    const picked = values['production-apis'] || []
+    if (!open.length) {
+      errors.push({ name: 'application', text: `Every API in ${chosen.name} is already in a production access request` })
+    } else if (!picked.length || !picked.every(value => open.includes(value))) {
+      errors.push({ name: 'production-apis', text: 'Select the APIs you need production access to' })
+    }
   } else if (productionRequests.forApplication(chosen.id)) {
     errors.push({ name: 'application', text: `${chosen.name} already has a production access request` })
   }
@@ -207,13 +217,94 @@ function radiosHtml (choices, selected) {
   }).join('')
 }
 
+function perApi () {
+  return features.isOn(FEATURE)
+}
+
+// The chosen application's APIs: those not yet in a request as checkboxes, the rest listed under
+// them with where they stand.
+function renderApiChoices (form, application, picked) {
+  const list = document.getElementById('production-apis-list')
+  const requested = document.getElementById('production-apis-requested')
+  if (!list || !requested) return
+  if (!application) {
+    list.innerHTML = '<p class="govuk-body">Choose an application first.</p>'
+    requested.innerHTML = ''
+    return
+  }
+  const entries = coverage(application)
+  const open = entries.filter(entry => !entry.request)
+  list.innerHTML = open.length
+    ? open.map((entry, index) => {
+      const id = index === 0 ? 'production-apis' : `production-apis-${index + 1}`
+      return `
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="${id}" name="production-apis" type="checkbox" value="${entry.api.value}"${picked.includes(entry.api.value) ? ' checked' : ''}>
+          <label class="govuk-label govuk-checkboxes__label" for="${id}">${escapeHtml(entry.api.text)}</label>
+        </div>`
+    }).join('')
+    : `<p class="govuk-body">Every API in ${escapeHtml(application.name)} is already in a production access request.</p>`
+  const done = entries.filter(entry => entry.request)
+  requested.innerHTML = done.length
+    ? `<p class="govuk-body govuk-!-margin-top-4 govuk-!-margin-bottom-1">Already in a request:</p>
+       <ul class="govuk-list govuk-list--bullet">${done.map(entry =>
+        `<li>${escapeHtml(entry.api.text)}: ${escapeHtml(STATUS_TEXT[entry.status] || entry.status)}, in
+          <a class="govuk-link" href="view/?reference=${entry.request.reference}">${entry.request.reference}</a></li>`).join('')}</ul>`
+    : ''
+}
+
+// Starts a further request for an application from the answers in its last one. Only empty
+// answers are filled in, and the go-live date is left for the person to give again.
+function prefillFrom (form, request) {
+  const notice = document.getElementById('production-prefilled')
+  if (notice) notice.innerHTML = ''
+  if (!request) return
+  const fill = (name, value) => {
+    if (!value) return
+    const field = document.getElementById(name)
+    if (field && !field.value) {
+      field.value = value
+      field.dispatchEvent(new Event('input'))
+    }
+  }
+  const pick = (name, value) => {
+    if (!value || form.querySelector(`input[name="${name}"]:checked`)) return
+    const radio = form.querySelector(`input[name="${name}"][value="${value}"]`)
+    if (radio) radio.checked = true
+  }
+  pick('organisation-type', request.organisationType)
+  fill('organisation', request.organisation)
+  pick('call-volume', request.callVolume)
+  fill('data-request', request.dataRequest)
+  if (!form.querySelector('input[name="data-recipients"]:checked')) {
+    (request.dataRecipients || []).forEach(value => {
+      const box = form.querySelector(`input[name="data-recipients"][value="${value}"]`)
+      if (box) box.checked = true
+    })
+  }
+  fill('data-recipients-explanation', request.dataRecipientsExplanation)
+  pick('data-combined', request.dataCombined)
+  fill('data-combined-description', request.dataCombinedDescription)
+  form.querySelectorAll('input[name="data-recipients"], input[name="data-combined"]').forEach(input => input.dispatchEvent(new Event('change')))
+  if (notice) {
+    notice.innerHTML = `
+      <div class="govuk-inset-text" id="prefilled-from">
+        We have filled in your answers from request ${request.reference}. Check they are still right for
+        the APIs you are asking for now, and give your go-live date.
+      </div>`
+  }
+}
+
 function renderForm () {
   const form = document.getElementById('production-form')
   const none = document.getElementById('no-applications')
   if (!form || !none) return
 
   // Only applications without a production request are offered: the backend allows one each.
-  const choices = applications.all().filter(application => !productionRequests.forApplication(application.id))
+  // With requests for each API, any application with an API not yet in a request.
+  const choices = applications.all().filter(application => perApi()
+    ? uncovered(application).length > 0
+    : !productionRequests.forApplication(application.id))
   none.hidden = choices.length > 0
   form.hidden = choices.length === 0
   if (!choices.length) return
@@ -238,10 +329,25 @@ function renderForm () {
   })
   showFollowUpsWhenNeeded(form)
 
+  if (perApi()) {
+    const hint = document.getElementById('application-hint')
+    if (hint) hint.textContent = 'You then choose which of its APIs you need production access to.'
+    const update = isChange => {
+      const application = applications.find((form.querySelector('input[name="application"]:checked') || {}).value)
+      const keep = !isChange && application && saved.application === application.id
+      renderApiChoices(form, application, keep ? (saved['production-apis'] || []) : [])
+      // A saved draft for this application keeps its own answers.
+      if (application && !(keep && answers.get(JOURNEY).application)) prefillFrom(form, latestRequest(application.id))
+    }
+    form.querySelectorAll('input[name="application"]').forEach(radio => radio.addEventListener('change', () => update(true)))
+    update(false)
+  }
+
   form.addEventListener('submit', event => {
     event.preventDefault()
     const checked = name => (form.querySelector(`input[name="${name}"]:checked`) || {}).value || ''
     const values = { application: checked('application') }
+    if (perApi()) values['production-apis'] = Array.from(form.querySelectorAll('input[name="production-apis"]:checked')).map(box => box.value)
     RADIO_FIELDS.forEach(name => { values[name] = checked(name) })
     values['data-recipients'] = Array.from(form.querySelectorAll('input[name="data-recipients"]:checked')).map(box => box.value)
     TEXT_FIELDS.forEach(name => { values[name] = (document.getElementById(name).value || '').trim() })
@@ -284,11 +390,15 @@ function renderCheckAnswers () {
     return
   }
 
+  // With requests for each API, only the APIs chosen; otherwise all of the application's.
+  const chosenApis = perApi()
+    ? application.apis.filter(api => (draft['production-apis'] || []).includes(api.value))
+    : application.apis
   const list = document.getElementById('production-answers')
   if (list) {
     list.innerHTML = summaryRowsHtml([
       { key: 'Application', value: application.name },
-      { key: 'APIs', value: application.apis.map(api => api.text).join(', ') || 'None' },
+      { key: 'APIs', value: chosenApis.map(api => api.text).join(', ') || 'None' },
       { key: 'Organisation', value: label(ORGANISATION_TYPES, draft['organisation-type']) },
       { key: 'Team name (and organisation if external to HMCTS?)', value: draft.organisation },
       { key: 'Go-live date', value: formatDate(goLiveDate(draft).toISOString()) },
@@ -304,7 +414,8 @@ function renderCheckAnswers () {
     const request = productionRequests.create({
       applicationId: application.id,
       applicationName: application.name,
-      apis: application.apis.map(api => api.text),
+      apis: chosenApis.map(api => api.text),
+      ...(perApi() ? { apiItems: chosenApis.map(api => ({ value: api.value, text: api.text, status: 'SUBMITTED' })) } : {}),
       organisation: draft.organisation,
       goLiveDate: goLiveDate(draft).toISOString().slice(0, 10),
       callVolume: draft['call-volume'],
@@ -315,8 +426,11 @@ function renderCheckAnswers () {
       // What the real service shows when the backend refuses a second request for an application.
       const column = form.parentElement
       clearErrors(column)
+      const text = perApi()
+        ? 'One of these APIs is already in a production access request.'
+        : `${application.name} already has a production access request.`
       column.querySelector('h1').insertAdjacentHTML('beforebegin',
-        errorSummaryHtml([{ name: 'production-submit', text: `${application.name} already has a production access request.` }]))
+        errorSummaryHtml([{ name: 'production-submit', text }]))
       column.querySelector('.govuk-error-summary').focus()
       return
     }
@@ -343,8 +457,16 @@ function renderView () {
   if (!request) return
   document.title = `Production credentials request ${request.reference} - HMCTS API Marketplace - GOV.UK`
   document.getElementById('request-reference').textContent = request.reference
-  document.getElementById('request-status').textContent = STATUS_TEXT[request.status] || request.status
+  document.getElementById('request-status').textContent = perApi() ? statusSummary(request) : (STATUS_TEXT[request.status] || request.status)
   document.getElementById('request-submitted').textContent = formatDate(request.submittedAt)
+  const apiList = document.getElementById('request-apis')
+  if (apiList && perApi()) {
+    apiList.innerHTML = requestApis(request).map(api => `
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">${escapeHtml(api.text)}</dt>
+        <dd class="govuk-summary-list__value">${statusTag(api.status)}</dd>
+      </div>`).join('')
+  }
   document.getElementById('request-answers').innerHTML = summaryRowsHtml([
     { key: 'Application', value: request.applicationName },
     ...(request.organisationType ? [{ key: 'Organisation', value: label(ORGANISATION_TYPES, request.organisationType) }] : []),
@@ -368,7 +490,7 @@ function renderMyRequests () {
       <td class="govuk-table__cell"><a class="govuk-link apim-reference" href="production-credentials/view/?reference=${request.reference}">${request.reference}</a></td>
       <td class="govuk-table__cell">Production credentials</td>
       <td class="govuk-table__cell">${formatDate(request.submittedAt)}</td>
-      <td class="govuk-table__cell">${STATUS_TEXT[request.status] || request.status}</td>
+      <td class="govuk-table__cell">${escapeHtml(perApi() ? statusSummary(request) : (STATUS_TEXT[request.status] || request.status))}</td>
     </tr>`).join('')
 
   empty.insertAdjacentHTML('afterend', `

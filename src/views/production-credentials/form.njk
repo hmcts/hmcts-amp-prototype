@@ -52,6 +52,22 @@
         errorMessage: { text: errorFor.application } if errorFor.application
       }) }}
 
+      {# Phase 2, production requests for each API: not in the real service. production-credentials.js
+         lists the chosen application's APIs here and says which are already in a request. #}
+      <div data-feature="production-request-per-api" hidden>
+        <div class="govuk-form-group" id="production-apis-group">
+          <fieldset class="govuk-fieldset" aria-describedby="production-apis-hint">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">Which APIs do you need production access to?</legend>
+            <div id="production-apis-hint" class="govuk-hint">The Data Access Team review each API separately, so each one gets its own outcome.</div>
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes" id="production-apis-list">
+              <p class="govuk-body">Choose an application first.</p>
+            </div>
+          </fieldset>
+          <div id="production-apis-requested"></div>
+        </div>
+        <div id="production-prefilled"></div>
+      </div>
+
       {{ govukRadios({
         name: "organisation-type",
         idPrefix: "organisation-type",

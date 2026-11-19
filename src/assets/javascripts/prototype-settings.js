@@ -1,4 +1,50 @@
 import { features } from './features.js'
+import { applications, productionRequests, user } from './store.js'
+import { OWN_TEAM_ONLY } from './triage.js'
+
+// Not in the real service: an application part-way through going live, to show production
+// requests for each API without filling in the forms first. Added once; after that the button
+// opens it.
+const EXAMPLE_NAME = 'Case progress tracker'
+const EXAMPLE_APIS = [
+  { value: 'court-schedule', text: 'Court Schedule' },
+  { value: 'hearing-results', text: 'Hearing Results' },
+  { value: 'defendant-details', text: 'Defendant Details' }
+]
+
+function addExample () {
+  if (!user.current()) user.signIn(false)
+  let application = applications.all().find(a => a.name === EXAMPLE_NAME)
+  if (!application) {
+    application = applications.create({
+      name: EXAMPLE_NAME,
+      description: 'Shows victims and witnesses where their case has got to.',
+      apis: EXAMPLE_APIS
+    })
+    const daysAgo = days => new Date(Date.now() - days * 86400000).toISOString()
+    const goLive = new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10)
+    applications.update(application.id, { createdAt: daysAgo(30) })
+    productionRequests.create({
+      applicationId: application.id,
+      applicationName: EXAMPLE_NAME,
+      apis: ['Court Schedule', 'Hearing Results'],
+      apiItems: [
+        { value: 'court-schedule', text: 'Court Schedule', status: 'APPROVED' },
+        { value: 'hearing-results', text: 'Hearing Results', status: 'SUBMITTED' }
+      ],
+      organisation: 'Example Witness Care Unit',
+      goLiveDate: goLive,
+      callVolume: 'low',
+      dataRequest: 'Hearing dates and results so we can tell victims and witnesses when their hearing is and what happened.',
+      organisationType: 'other-government',
+      dataRecipients: [OWN_TEAM_ONLY],
+      dataCombined: 'no',
+      submittedAt: daysAgo(12)
+    })
+  }
+  const settings = window.location.pathname.replace(/prototype-settings\/.*$/, '')
+  window.location.href = `${settings}account/applications/detail/?id=${application.id}`
+}
 
 function escapeHtml (value) {
   const div = document.createElement('div')
@@ -55,3 +101,6 @@ function render () {
 }
 
 render()
+
+const example = document.getElementById('example-data')
+if (example) example.addEventListener('click', event => { event.preventDefault(); addExample() })

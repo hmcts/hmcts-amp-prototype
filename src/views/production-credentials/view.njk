@@ -21,6 +21,13 @@
       <br>Submitted <span id="request-submitted">{{ request.submittedAt | date }}</span>
     </p>
 
+    {# Phase 2, production requests for each API: each API in the request and its own outcome. #}
+    <div data-feature="production-request-per-api" hidden>
+      <h2 class="govuk-heading-m">APIs in this request</h2>
+      <dl class="govuk-summary-list" id="request-apis"></dl>
+      <h2 class="govuk-heading-m">Your answers</h2>
+    </div>
+
     {% set summaryRows = [] %}
     {% for row in rows %}
       {% set summaryRows = (summaryRows.push({ key: { text: row.key }, value: { text: row.value } }), summaryRows) %}

@@ -49,6 +49,21 @@
       </p>
       <p class="govuk-body"><a class="govuk-link" id="features-link" href="./"></a></p>
     </div>
+
+    <h2 class="govuk-heading-m">Example data</h2>
+    <p class="govuk-body">
+      Signs you in as the example user and adds an application, Case progress tracker, with three made-up
+      APIs. Two of them are in a production credentials request already: one approved, one still submitted.
+      The third has not been requested, so you can ask for it.
+    </p>
+    <p class="govuk-body">
+      The outcomes for each API show when Production requests for each API is switched on.
+    </p>
+    {{ govukButton({
+      text: "Add the example application",
+      classes: "govuk-button--secondary",
+      attributes: { id: "example-data" }
+    }) }}
   </div>
 </div>
 {% endblock %}

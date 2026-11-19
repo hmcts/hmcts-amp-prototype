@@ -113,6 +113,8 @@ function newReference () {
 
 // Production credentials requests. The real service stores them in the backend, which allows
 // one per application, and nothing ever moves them on from Submitted: review is offline.
+// With requests for each API (a Phase 2 feature), an application can have several, each
+// listing its APIs in `apiItems` with a status for each.
 export const productionRequests = {
   all () {
     return read(REQUESTS_KEY, [])
@@ -123,13 +125,26 @@ export const productionRequests = {
   forApplication (applicationId) {
     return this.all().find(request => request.applicationId === applicationId) || null
   },
+  forApplicationAll (applicationId) {
+    return this.all().filter(request => request.applicationId === applicationId)
+  },
+  // Refuses a second request for an application, as the backend does, unless the request names
+  // its APIs (`apiItems`): then it refuses only an API that is already in a request.
   create (details) {
-    if (this.forApplication(details.applicationId)) return null
+    if (Array.isArray(details.apiItems)) {
+      // An older request names its APIs only, so names count as taken too.
+      const taken = this.forApplicationAll(details.applicationId)
+        .flatMap(request => request.apiItems ? request.apiItems.map(api => api.text) : (request.apis || []))
+      if (!details.apiItems.length || details.apiItems.some(api => taken.includes(api.text))) return null
+    } else if (this.forApplication(details.applicationId)) {
+      return null
+    }
     const request = {
       ...details,
       reference: newReference(),
       status: 'SUBMITTED',
-      submittedAt: new Date().toISOString()
+      // Only the prototype's example data gives its own date.
+      submittedAt: details.submittedAt || new Date().toISOString()
     }
     write(REQUESTS_KEY, this.all().concat(request))
     return request
