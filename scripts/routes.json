@@ -26,7 +26,6 @@
   { "view": "content/documentation/technology-introduction.njk", "url": "/documentation/technology-introduction/" },
 
   { "view": "api-catalogue/index.njk",  "url": "/api-catalogue/" },
-  { "view": "api-catalogue/detail.njk", "url": "/api-catalogue/detail/" },
 
   { "view": "applications/index.njk",        "url": "/account/applications/" },
   { "view": "applications/detail.njk",       "url": "/account/applications/detail/" },

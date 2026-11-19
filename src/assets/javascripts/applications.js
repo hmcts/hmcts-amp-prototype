@@ -192,7 +192,7 @@ function publisherId (apiValue) {
 
 // applications/instructions.njk in the real service, folded away under each API. The tenant and
 // secret stay placeholders. The real reference link goes to the developer portal; the prototype's
-// APIs are made up, so it goes to the catalogue page instead.
+// APIs are made up, so it goes to the API's catalogue page instead.
 function instructionsHtml (application, api) {
   const scope = `${publisherId(api.value)}/.default`
   const title = escapeHtml(api.text)
@@ -215,7 +215,7 @@ function instructionsHtml (application, api) {
   --data 'client_secret=&lt;client_secret&gt;' \\
   --data scope=${scope}</code></pre>
         <h3 class="govuk-heading-s">Run try it now in developer portal</h3>
-        <p class="govuk-body"><a class="govuk-link" id="api-reference-${api.value}" href="../../../api-catalogue/detail/?api=${api.value}" rel="noreferrer noopener" target="_blank">${title} API reference (opens in new tab)</a></p>
+        <p class="govuk-body"><a class="govuk-link" id="api-reference-${api.value}" href="../../../api-catalogue/${api.value}/" rel="noreferrer noopener" target="_blank">${title} API reference (opens in new tab)</a></p>
       </div>
     </details>`
 }

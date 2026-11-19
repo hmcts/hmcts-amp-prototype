@@ -63,8 +63,43 @@ const globals = await locale('template')
 // Not in the real service: where prototype features are switched on and off.
 globals.footerLinks = globals.footerLinks.concat({ text: 'Prototype settings', href: '/prototype-settings' })
 const features = JSON.parse(await readFile(join(root, 'src/data/features.json'), 'utf8')).features
-// The real service lists APIs from the catalogue backend. These seed the checkboxes instead.
+// The real service lists APIs from the catalogue backend. These made-up APIs seed the checkboxes
+// and the catalogue instead.
 const apiItems = JSON.parse(await readFile(join(root, 'src/data/apis.json'), 'utf8'))
+
+// ApiCatalogueController in the real service: the list under a heading per letter, and a page per
+// API at /api-catalogue/<short code>. The static site has no search, so ?q= is not handled.
+const ALPHABET = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
+const catalogue = apiItems
+  .map(api => ({
+    shortCode: api.value,
+    title: api.text,
+    summary: api.hint && api.hint.text,
+    description: api.description,
+    team: api.team,
+    platform: api.platform,
+    domain: api.domain
+  }))
+  .sort((a, b) => a.title.localeCompare(b.title))
+const catalogueGroups = []
+for (const api of catalogue) {
+  const first = api.title.charAt(0).toUpperCase()
+  const letter = ALPHABET.includes(first) ? first : '#'
+  const group = catalogueGroups.find(g => g.letter === letter) || catalogueGroups[catalogueGroups.push({ letter, apis: [] }) - 1]
+  group.apis.push(api)
+}
+const catalogueContext = {
+  query: '',
+  results: catalogue,
+  groups: catalogueGroups,
+  letters: ALPHABET.map(letter => ({ letter, present: catalogueGroups.some(group => group.letter === letter) })),
+  unavailable: catalogue.length === 0
+}
+routes.push(...catalogue.map(api => ({
+  view: 'api-catalogue/detail.njk',
+  url: `/api-catalogue/${api.shortCode}/`,
+  context: { api, descriptionParagraphs: (api.description || api.summary || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean) }
+})))
 
 const css = sass.compile(join(root, 'src/assets/scss/main.scss'), {
   loadPaths: [govuk, join(root, 'node_modules')],
@@ -100,7 +135,16 @@ await mkdir(out, { recursive: true })
 
 for (const route of routes) {
   const prefix = depth(route.url)
-  const context = { ...globals, ...(await locale(route.locale)), apiItems, basePath: prefix, assetPath: prefix + 'assets', currentUrl: route.url }
+  const context = {
+    ...globals,
+    ...(await locale(route.locale)),
+    apiItems,
+    ...(route.view === 'api-catalogue/index.njk' ? catalogueContext : {}),
+    ...route.context,
+    basePath: prefix,
+    assetPath: prefix + 'assets',
+    currentUrl: route.url
+  }
   const rendered = versionAssets(relativise(env.render(route.view, context), prefix))
   const target = route.url.endsWith('.html')
     ? join(out, route.url)

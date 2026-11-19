@@ -1,7 +1,32 @@
 [
-  { "value": "court-schedule",        "text": "Court Schedule",         "hint": { "text": "Hearing schedules for a court, by date and courtroom." } },
-  { "value": "prosecution-case",      "text": "Prosecution Case Details", "hint": { "text": "Case details for a prosecution, including defendants and offences." } },
-  { "value": "hearing-results",       "text": "Hearing Results",       "hint": { "text": "Results recorded against a hearing once it has concluded." } },
-  { "value": "defendant-details",     "text": "Defendant Details",     "hint": { "text": "Personal and case details for a named defendant." } },
-  { "value": "courthouse-reference",  "text": "Courthouse Reference Data", "hint": { "text": "Reference data for courthouses, rooms and sitting days." } }
+  {
+    "value": "court-schedule", "text": "Court Schedule",
+    "hint": { "text": "Hearing schedules for a court, by date and courtroom." },
+    "team": "Example Listing Team", "platform": "Example Platform", "domain": "Listing",
+    "description": "Hearing schedules for a court, by date and courtroom.\n\nEach hearing has its case number, hearing type, courtroom and start time. Schedules change during the day, so call it again rather than keeping a copy for long."
+  },
+  {
+    "value": "courthouse-reference", "text": "Courthouse Reference Data",
+    "hint": { "text": "Reference data for courthouses, rooms and sitting days." },
+    "team": "Example Reference Data Team", "platform": "Example Platform", "domain": "Reference data",
+    "description": "Reference data for courthouses, rooms and sitting days.\n\nUse it to turn the codes other APIs return into names and addresses. It holds no personal data."
+  },
+  {
+    "value": "defendant-details", "text": "Defendant Details",
+    "hint": { "text": "Personal and case details for a named defendant." },
+    "team": "Example Case Data Team", "platform": "Example Platform", "domain": "Crime",
+    "description": "Personal and case details for a named defendant.\n\nThis API returns personal data, so production access needs a clear reason and is reviewed carefully."
+  },
+  {
+    "value": "hearing-results", "text": "Hearing Results",
+    "hint": { "text": "Results recorded against a hearing once it has concluded." },
+    "team": "Example Results Team", "platform": "Example Platform", "domain": "Crime",
+    "description": "Results recorded against a hearing once it has concluded.\n\nResults include outcomes, orders and next hearing dates."
+  },
+  {
+    "value": "prosecution-case", "text": "Prosecution Case Details",
+    "hint": { "text": "Case details for a prosecution, including defendants and offences." },
+    "team": "Example Case Data Team", "platform": "Example Platform", "domain": "Crime",
+    "description": "Case details for a prosecution, including defendants and offences.\n\nOne call returns the case, its defendants and the offences charged."
+  }
 ]
