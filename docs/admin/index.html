@@ -14,7 +14,7 @@
     
       
   
-  <link href="../assets/main.css?v=876ea8c14c" rel="stylesheet">
+  <link href="../assets/main.css?v=7fa87a5955" rel="stylesheet">
 
       </head>
   <body class="govuk-template__body">
@@ -210,31 +210,25 @@ data-module="govuk-service-navigation"
 </div>
 
   
-      <nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="govuk-breadcrumbs__list">
-      <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="../">Home</a>
-    </li>
-    </ol>
-</nav>
-
           <main class="govuk-main-wrapper" id="main-content">
-          <div data-feature-page="admin-dashboard">
-
+          
 <div id="admin-denied" hidden>
-  <h1 class="govuk-heading-xl">You need admin permission</h1>
-  <p class="govuk-body">These pages are for the Marketplace Team.</p>
-  <p class="govuk-body"><a class="govuk-link" href="../sign-in">Sign in with admin permission</a></p>
+  <h1 class="govuk-heading-xl">Page not found</h1>
+  <p class="govuk-body-m">If you typed the web address, check it is correct.</p>
+  <p class="govuk-body-m">If you pasted the web address, check you copied the entire address.</p>
 </div>
 
 <div id="admin-content" hidden>
-  <span class="govuk-caption-xl">Marketplace Team</span>
-  <h1 class="govuk-heading-xl">Admin</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div data-feature="admin-dashboard" hidden><span class="govuk-caption-xl">Marketplace Team</span></div>
+      <h1 class="govuk-heading-xl">Admin</h1>
+    </div>
+  </div>
 
-  <div class="govuk-grid-row" id="admin-counts"></div>
+  <div class="govuk-grid-row" id="admin-counts" data-feature="admin-dashboard" hidden></div>
 
   
-</div>
 </div>
         </main>
       </div>
@@ -336,6 +330,6 @@ data-module="govuk-service-navigation"
 
 
       
-  <script type="module" src="../assets/main.js?v=876ea8c14c"></script>
+  <script type="module" src="../assets/main.js?v=7fa87a5955"></script>
   </body>
 </html>

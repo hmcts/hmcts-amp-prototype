@@ -25,22 +25,19 @@
       attributes: { id: "sign-in", "data-action": "sign-in" }
     }) }}
 
-    {# Only when the admin dashboard feature is switched on (see Prototype settings). #}
-    <div data-feature="admin-dashboard" hidden>
-    <h2 class="govuk-heading-m">With admin permission</h2>
+    {# The real service reads the role from the backend, which marks the Marketplace Team as ADMIN. #}
+    <h2 class="govuk-heading-m">As an admin</h2>
     <p class="govuk-body">
-      To see the admin pages as well, sign in as the same example user with the admin permission
-      that a member of the Marketplace Team would have. You can still use applications and
-      production credentials as a consumer. The real service has no permissions yet.
+      To see the Admin tab as well, sign in as the same example user with the admin role that the
+      Marketplace Team have. You can still use applications and production credentials.
     </p>
 
     {{ govukButton({
-      text: "Sign in with admin permission",
+      text: "Sign in as an admin",
       href: "../admin/",
       classes: "govuk-button--secondary",
-      attributes: { id: "sign-in-admin", "data-action": "sign-in", "data-permission": "admin" }
+      attributes: { id: "sign-in-admin", "data-action": "sign-in", "data-role": "ADMIN" }
     }) }}
-    </div>
   </div>
 </div>
 {% endblock %}

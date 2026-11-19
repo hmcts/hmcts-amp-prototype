@@ -1,7 +1,6 @@
 import { initAll } from './govuk-frontend.min.js'
 // First, so a ?features= link is applied before any page script checks a feature.
 import './features.js'
-import { features } from './features.js'
 import { user } from './store.js'
 import './applications.js'
 import './production-credentials.js'
@@ -26,8 +25,8 @@ function applyNavigation (signedIn) {
   link.textContent = 'Your account'
   link.setAttribute('href', link.getAttribute('href').replace(/sign-in\/?$/, 'account/'))
   addItem(list, last, 'applications', 'Applications', 'account/applications/')
-  // The admin permission adds Admin alongside the consumer items, not instead of them.
-  if (features.isOn('admin-dashboard') && signedIn.permissions.includes('admin')) {
+  // As template.njk in the real service: Admin after Applications, for the ADMIN role only.
+  if (signedIn.role === 'ADMIN') {
     addItem(list, last, 'admin', 'Admin', 'admin/', /\/admin\//.test(window.location.pathname))
   }
 }
@@ -60,7 +59,7 @@ document.addEventListener('click', event => {
   if (!action) return
   if (action.dataset.action === 'sign-in') {
     event.preventDefault()
-    user.signIn(action.dataset.permission === 'admin')
+    user.signIn(action.dataset.role === 'ADMIN')
     window.location.href = action.getAttribute('href') || './'
   }
   if (action.dataset.action === 'sign-out') {

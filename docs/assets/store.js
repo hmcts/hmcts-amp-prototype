@@ -11,8 +11,8 @@ export const DUMMY_USER = {
   name: 'John Doe'
 }
 
-// A signed-in user carries `permissions`. Everyone is a 'consumer'; 'admin' adds the admin pages
-// for the Marketplace Team on top. The real service has no permissions yet.
+// A signed-in user carries a `role`, as in the real service: 'USER', or 'ADMIN' for the
+// Marketplace Team. An admin can do everything a user can, and also sees the Admin tab.
 
 const LAST_SIGN_IN_KEY = 'ampPrototypeLastSignIn'
 
@@ -34,24 +34,22 @@ function write (key, value) {
 export const user = {
   current () {
     const stored = read(USER_KEY, null)
-    if (!stored || stored.permissions) return stored
-    // Signed in before permissions existed: the old separate admin becomes the example user
-    // with the admin permission.
-    return { ...DUMMY_USER, permissions: stored.role === 'admin' ? ['consumer', 'admin'] : ['consumer'] }
+    if (!stored || stored.role === 'USER' || stored.role === 'ADMIN') return stored
+    // Signed in by an older version of the prototype, with permissions or a lower-case role.
+    const wasAdmin = stored.role === 'admin' || (stored.permissions || []).includes('admin')
+    return { ...DUMMY_USER, role: wasAdmin ? 'ADMIN' : 'USER' }
   },
-  // The example user, with the admin permission too when asked for.
-  signIn (withAdmin) {
-    const signedIn = { ...DUMMY_USER, permissions: withAdmin ? ['consumer', 'admin'] : ['consumer'] }
+  // The example user, with the ADMIN role when asked for.
+  signIn (asAdmin) {
+    const signedIn = { ...DUMMY_USER, role: asAdmin ? 'ADMIN' : 'USER' }
     write(USER_KEY, signedIn)
     write(LAST_SIGN_IN_KEY, new Date().toISOString())
     return signedIn
   },
-  can (permission) {
-    const current = this.current()
-    return !!current && current.permissions.includes(permission)
-  },
+  // isAdmin in the real service's SignIn.ts.
   isAdmin () {
-    return this.can('admin')
+    const current = this.current()
+    return !!current && current.role === 'ADMIN'
   },
   // When the example user last signed in, for the admin pages' Users table.
   lastSignIn () {

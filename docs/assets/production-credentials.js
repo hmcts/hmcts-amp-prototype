@@ -1,5 +1,5 @@
-import { applications, answers, productionRequests } from './store.js?v=876ea8c14c'
-import { DATA_COMBINED, DATA_RECIPIENTS, ORGANISATION_TYPES, OWN_TEAM_ONLY, label, triageRows } from './triage.js?v=876ea8c14c'
+import { applications, answers, productionRequests } from './store.js?v=7fa87a5955'
+import { DATA_COMBINED, DATA_RECIPIENTS, ORGANISATION_TYPES, OWN_TEAM_ONLY, label, triageRows } from './triage.js?v=7fa87a5955'
 
 // Stands in for ProductionCredentialsController in web-api-marketplace: the same questions,
 // checks and messages, with the session and the backend replaced by browser storage.
