@@ -14,7 +14,7 @@
     
       
   
-  <link href="../../../assets/main.css?v=dab149bd40" rel="stylesheet">
+  <link href="../../../assets/main.css?v=db52eceb83" rel="stylesheet">
 
       </head>
   <body class="govuk-template__body">
@@ -256,6 +256,13 @@ data-module="govuk-service-navigation"
       When this application has been tested,
       <a class="govuk-link" href="../../production-credentials/" id="going-live">request production credentials</a> for it.
     </p>
+    
+    <div data-feature="production-request-per-api" hidden>
+      <dl class="govuk-summary-list" id="production-apis-status"></dl>
+      <p class="govuk-body" id="request-more-apis" hidden>
+        <a class="govuk-link" href="../../production-credentials/" id="request-more-apis-link">Request production access for <span id="request-more-apis-text">more APIs</span></a>
+      </p>
+    </div>
 
     <h2 class="govuk-heading-m">Delete this application</h2>
     <p class="govuk-body">Its client ID, secret and subscription keys stop working straight away.</p>
@@ -366,6 +373,6 @@ data-module="govuk-service-navigation"
 
 
       
-  <script type="module" src="../../../assets/main.js?v=dab149bd40"></script>
+  <script type="module" src="../../../assets/main.js?v=db52eceb83"></script>
   </body>
 </html>

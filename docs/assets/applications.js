@@ -1,4 +1,6 @@
-import { applications, answers, productionRequests } from './store.js?v=dab149bd40'
+import { applications, answers, productionRequests } from './store.js?v=db52eceb83'
+import { features } from './features.js?v=db52eceb83'
+import { FEATURE, coverage, statusTag } from './request-apis.js?v=db52eceb83'
 
 const JOURNEY = 'new-application'
 // applications.maxPerUser in the real service's config.
@@ -255,7 +257,11 @@ function renderDetail (application) {
   const request = productionRequests.forApplication(application.id)
   const asked = document.getElementById('production-request')
   const ask = document.getElementById('request-production')
-  if (asked && ask) {
+  if (asked && ask && features.isOn(FEATURE)) {
+    asked.hidden = true
+    ask.hidden = true
+    renderProductionApis(application)
+  } else if (asked && ask) {
     asked.hidden = !request
     ask.hidden = !!request
     if (request) {
@@ -263,6 +269,10 @@ function renderDetail (application) {
       document.getElementById('view-production-request').setAttribute('href', `../../production-credentials/view/?reference=${request.reference}`)
     }
   }
+
+  const change = document.getElementById('change-apis')
+  if (change) change.setAttribute('href', `../apis/?id=${application.id}`)
+  showNotice()
 
   const remove = document.getElementById('delete-application')
   if (remove) {
@@ -272,6 +282,115 @@ function renderDetail (application) {
       window.location.href = '../'
     })
   }
+}
+
+// Phase 2, production requests for each API: where each of the application's APIs stands, and a
+// link to ask for those not yet in a request.
+function renderProductionApis (application) {
+  const list = document.getElementById('production-apis-status')
+  const more = document.getElementById('request-more-apis')
+  if (!list || !more) return
+  const entries = coverage(application)
+  list.innerHTML = entries.map(entry => row(entry.api.text, entry.request
+    ? `${statusTag(entry.status)} <a class="govuk-link" href="../../production-credentials/view/?reference=${entry.request.reference}">${entry.request.reference}</a>`
+    : 'Not requested yet')).join('')
+  list.hidden = !entries.length
+  const open = entries.filter(entry => !entry.request)
+  more.hidden = !open.length
+  if (open.length) {
+    const asked = entries.length > open.length
+    document.getElementById('request-more-apis-text').textContent = asked
+      ? (open.length === 1 ? open[0].api.text : `the other ${open.length} APIs`)
+      : (open.length === 1 ? open[0].api.text : `its ${open.length} APIs`)
+    document.getElementById('request-more-apis-link').setAttribute('href', `../../production-credentials/?application=${application.id}`)
+  }
+}
+
+// The real service's session notice, shown once on the next page: here kept in sessionStorage.
+const NOTICE_KEY = 'ampPrototypeNotice'
+
+function showNotice () {
+  let notice = null
+  try {
+    notice = JSON.parse(window.sessionStorage.getItem(NOTICE_KEY) || 'null')
+    window.sessionStorage.removeItem(NOTICE_KEY)
+  } catch (e) { /* no notice */ }
+  if (!notice) return
+  document.querySelector('h1').insertAdjacentHTML('beforebegin', `
+    <div class="govuk-notification-banner${notice.success ? ' govuk-notification-banner--success' : ''}" role="${notice.success ? 'alert' : 'region'}" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner" id="notice">
+      <div class="govuk-notification-banner__header">
+        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">${escapeHtml(notice.title)}</h2>
+      </div>
+      <div class="govuk-notification-banner__content">
+        <p class="govuk-notification-banner__heading">${escapeHtml(notice.text)}</p>
+      </div>
+    </div>`)
+}
+
+// Add or remove APIs: editApis and saveEditedApis in the real service's ApplicationsController.
+function renderEditApis (application) {
+  const form = document.querySelector('form')
+  if (!form) return
+  const name = application.name
+  document.title = 'Add or remove APIs - HMCTS API Marketplace - GOV.UK'
+  const caption = document.querySelector('.govuk-caption-l')
+  if (caption) caption.textContent = name
+  const legend = form.querySelector('legend')
+  if (legend) legend.textContent = `Which APIs does ${name} need?`
+  const crumbs = document.querySelectorAll('.govuk-breadcrumbs__link')
+  const last = crumbs[crumbs.length - 1]
+  if (last) { last.textContent = name; last.setAttribute('href', `../detail/?id=${application.id}`) }
+  const cancel = Array.from(form.querySelectorAll('a.govuk-link')).find(link => link.textContent.trim() === 'Cancel')
+  if (cancel) cancel.setAttribute('href', `../detail/?id=${application.id}`)
+
+  const inputs = Array.from(form.querySelectorAll('input[name="apis"]'))
+  const current = application.apis.map(api => api.value)
+  inputs.forEach(input => { input.checked = current.includes(input.value) })
+
+  form.addEventListener('submit', event => {
+    event.preventDefault()
+    const column = form.parentElement
+    column.querySelectorAll('.govuk-error-summary, [data-prototype-error]').forEach(el => el.remove())
+    const group = form.querySelector('.govuk-form-group')
+    group.classList.remove('govuk-form-group--error')
+    document.title = document.title.replace(/^Error: /, '')
+
+    const selected = inputs.filter(input => input.checked).map(input => ({
+      value: input.value,
+      text: (form.querySelector('label[for="' + input.id + '"]') || {}).textContent.trim()
+    }))
+    if (!selected.length) {
+      document.title = 'Error: ' + document.title
+      column.querySelector('.govuk-caption-l').insertAdjacentHTML('beforebegin', `
+        <div class="govuk-error-summary" data-module="govuk-error-summary" tabindex="-1">
+          <div role="alert">
+            <h2 class="govuk-error-summary__title">There is a problem</h2>
+            <div class="govuk-error-summary__body">
+              <ul class="govuk-list govuk-error-summary__list"><li><a href="#apis">Select at least one API</a></li></ul>
+            </div>
+          </div>
+        </div>`)
+      group.classList.add('govuk-form-group--error')
+      form.querySelector('.govuk-checkboxes').insertAdjacentHTML('beforebegin',
+        '<p class="govuk-error-message" data-prototype-error><span class="govuk-visually-hidden">Error:</span> Select at least one API</p>')
+      column.querySelector('.govuk-error-summary').focus()
+      return
+    }
+
+    const added = selected.filter(api => !current.includes(api.value))
+    const removed = current.filter(value => !selected.some(api => api.value === value))
+    applications.update(application.id, { apis: selected })
+    try {
+      window.sessionStorage.setItem(NOTICE_KEY, JSON.stringify({
+        success: true,
+        title: 'Success',
+        text: added.length || removed.length
+          ? `APIs updated: ${added.length} added, ${removed.length} removed. Each API added has its own new subscription key.`
+          : 'No changes were made to the APIs.'
+      }))
+    } catch (e) { /* the page still shows the change */ }
+    window.location.href = `../detail/?id=${application.id}`
+  })
 }
 
 function requireApplication (listUrl) {
@@ -301,6 +420,10 @@ if (current === 'new/check-answers') renderCheckAnswers()
 if (current === 'new/confirmation') {
   const application = requireApplication('../../')
   if (application) renderConfirmation(application, applications.newSecret(application.id))
+}
+if (current === 'apis') {
+  const application = requireApplication('../')
+  if (application) renderEditApis(application)
 }
 if (current === 'detail') {
   const application = requireApplication('../')

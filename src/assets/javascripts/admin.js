@@ -1,6 +1,7 @@
 import { user, applications, productionRequests, DUMMY_USER } from './store.js'
 import { features } from './features.js'
 import { ORGANISATION_TYPES, label, triageRows } from './triage.js'
+import { FEATURE, requestApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js'
 
 // The admin pages. The real service has an Admin page for the ADMIN role, with nothing on it
 // yet, and no cross-user reads. The admin dashboard feature is a read-only design on top: made-up
@@ -272,7 +273,8 @@ function renderRequest (data) {
   if (!found) { notFound('Request', '../'); return }
 
   setHeading(found.reference, 'Production requests')
-  document.getElementById('admin-request-status').textContent = STATUS_TEXT[found.status] || found.status
+  const perApi = features.isOn(FEATURE) && Array.isArray(found.apiItems)
+  document.getElementById('admin-request-status').textContent = perApi ? statusSummary(found) : (STATUS_TEXT[found.status] || found.status)
   document.getElementById('admin-request-submitted').textContent = formatDate(found.submittedAt)
 
   const owner = data.user(found.ownerId)
@@ -282,7 +284,10 @@ function renderRequest (data) {
     ...(found.organisationType ? [['Organisation', escapeHtml(label(ORGANISATION_TYPES, found.organisationType))]] : []),
     ['Team name (and organisation if external to HMCTS?)', escapeHtml(found.organisation)],
     ['Application', application ? link(`../../applications/detail/?id=${application.id}`, application.name) : escapeHtml(found.applicationName)],
-    ['APIs', escapeHtml(application ? application.apis.map(api => api.text).join(', ') || 'None' : (found.apis || []).join(', '))]
+    // With requests for each API, the APIs this request asks for, each with its own outcome.
+    ['APIs', perApi
+      ? `<ul class="govuk-list">${requestApis(found).map(api => `<li>${escapeHtml(api.text)} ${apiStatusTag(api.status)}</li>`).join('')}</ul>`
+      : escapeHtml(application ? application.apis.map(api => api.text).join(', ') || 'None' : (found.apis || []).join(', '))]
   ])
 
   document.getElementById('admin-request-answers').innerHTML = summaryRows([

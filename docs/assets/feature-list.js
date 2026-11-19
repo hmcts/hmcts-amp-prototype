@@ -4,5 +4,11 @@ export default [
     "name": "Admin dashboard",
     "description": "A read-only view for the Marketplace Team of every registered user, application and production credentials request, on the Admin page that admins already see.",
     "default": false
+  },
+  {
+    "id": "production-request-per-api",
+    "name": "Production requests for each API",
+    "description": "A production credentials request covers the APIs you choose, and each API gets its own outcome, because the Data Access Team review each API in an application. You can ask for more of an application's APIs later, with your earlier answers filled in.",
+    "default": false
   }
 ]

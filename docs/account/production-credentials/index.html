@@ -14,7 +14,7 @@
     
       
   
-  <link href="../../assets/main.css?v=dab149bd40" rel="stylesheet">
+  <link href="../../assets/main.css?v=db52eceb83" rel="stylesheet">
 
       </head>
   <body class="govuk-template__body">
@@ -263,6 +263,21 @@ data-module="govuk-service-navigation"
 </fieldset>
 </div>
 
+
+      
+      <div data-feature="production-request-per-api" hidden>
+        <div class="govuk-form-group" id="production-apis-group">
+          <fieldset class="govuk-fieldset" aria-describedby="production-apis-hint">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">Which APIs do you need production access to?</legend>
+            <div id="production-apis-hint" class="govuk-hint">The Data Access Team review each API separately, so each one gets its own outcome.</div>
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes" id="production-apis-list">
+              <p class="govuk-body">Choose an application first.</p>
+            </div>
+          </fieldset>
+          <div id="production-apis-requested"></div>
+        </div>
+        <div id="production-prefilled"></div>
+      </div>
 
       <div class="govuk-form-group">
   <fieldset class="govuk-fieldset">
@@ -615,6 +630,6 @@ data-module="govuk-service-navigation"
 
 
       
-  <script type="module" src="../../assets/main.js?v=dab149bd40"></script>
+  <script type="module" src="../../assets/main.js?v=db52eceb83"></script>
   </body>
 </html>

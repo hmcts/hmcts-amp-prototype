@@ -49,6 +49,14 @@
       When this application has been tested,
       <a class="govuk-link" href="../../production-credentials/" id="going-live">request production credentials</a> for it.
     </p>
+    {# Phase 2, production requests for each API: instead of the two paragraphs above, where each API
+       stands, and a link to ask for any API not yet in a request. applications.js fills it in. #}
+    <div data-feature="production-request-per-api" hidden>
+      <dl class="govuk-summary-list" id="production-apis-status"></dl>
+      <p class="govuk-body" id="request-more-apis" hidden>
+        <a class="govuk-link" href="../../production-credentials/" id="request-more-apis-link">Request production access for <span id="request-more-apis-text">more APIs</span></a>
+      </p>
+    </div>
 
     <h2 class="govuk-heading-m">Delete this application</h2>
     <p class="govuk-body">Its client ID, secret and subscription keys stop working straight away.</p>
