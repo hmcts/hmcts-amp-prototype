@@ -57,12 +57,28 @@
       The third has not been requested, so you can ask for it.
     </p>
     <p class="govuk-body">
-      The outcomes for each API show when Production requests for each API is switched on.
+      The outcomes for each API show when Production requests for each API is switched on. With Get production
+      credentials yourself switched on too, Court Schedule's production credentials are ready to get from the
+      application page.
+    </p>
+    <p class="govuk-body">
+      To record a decision yourself, sign in as an admin and open the request from the Admin tab.
     </p>
     {{ govukButton({
       text: "Add the example application",
       classes: "govuk-button--secondary",
       attributes: { id: "example-data" }
+    }) }}
+
+    <h3 class="govuk-heading-s">Start again</h3>
+    <p class="govuk-body">
+      Removes every application and production credentials request in this browser, including the example, and
+      any answers you have half filled in. You stay signed in and your feature choices are kept.
+    </p>
+    {{ govukButton({
+      text: "Clear example data",
+      classes: "govuk-button--warning",
+      attributes: { id: "clear-data" }
     }) }}
   </div>
 </div>

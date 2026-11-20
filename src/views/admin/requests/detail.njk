@@ -24,6 +24,15 @@
 
   <h2 class="govuk-heading-m">Their answers</h2>
   {{ govukSummaryList({ rows: [], attributes: { id: "admin-request-answers" } }) }}
+
+  {# Phase 2, getting production credentials yourself: the Marketplace Team record the Data Access
+     Team's decision here, which emails the requester. admin.js builds the form and the history. #}
+  <div data-feature="production-credentials-self-serve" hidden>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds" id="admin-request-decision"></div>
+    </div>
+    <div id="admin-request-history"></div>
+  </div>
 </div>
 </div>
 {% endblock %}

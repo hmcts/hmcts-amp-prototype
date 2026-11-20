@@ -1,7 +1,8 @@
-import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=7897bd5633'
-import { features } from './features.js?v=7897bd5633'
-import { ORGANISATION_TYPES, label, triageRows } from './triage.js?v=7897bd5633'
-import { FEATURE, requestApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=7897bd5633'
+import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=d0ea7e9560'
+import { features } from './features.js?v=d0ea7e9560'
+import { ORGANISATION_TYPES, label, triageRows } from './triage.js?v=d0ea7e9560'
+import { FEATURE, requestApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=d0ea7e9560'
+import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=d0ea7e9560'
 
 // The admin pages. The real service has an Admin page for the amp_admin app role, with nothing on it
 // yet, and no cross-user reads. The admin dashboard feature is a read-only design on top: made-up
@@ -143,7 +144,7 @@ function requestsTable (data, requests, depth, emptyText) {
       link(adminLink(depth, `applications/detail/?id=${r.applicationId}`), r.applicationName),
       escapeHtml(r.organisation),
       formatDate(r.submittedAt),
-      statusTag(r.status)
+      features.isOn(FEATURE) && Array.isArray(r.apiItems) ? escapeHtml(statusSummary(r)) : statusTag(r.status)
     ]), emptyText)
 }
 
@@ -296,6 +297,169 @@ function renderRequest (data) {
     ['Data request', escapeHtml(found.dataRequest)],
     ...triageRows(found).map(row => [row.key, escapeHtml(row.value)])
   ])
+
+  if (features.isOn(SELF_SERVE)) renderDecision(found, owner, perApi)
+}
+
+// Phase 2, getting production credentials yourself: record the Data Access Team's decision, which
+// in the real service would email the requester. Only requests made in this browser can change;
+// the made-up ones from admin-seed.json stay as they are.
+const DECISION_KEY = 'ampPrototypeDecisionRecorded'
+const DECISIONS = [
+  { value: 'APPROVED', text: 'Approved', hint: 'The requester can then sign in and get production credentials.' },
+  { value: 'MORE_INFORMATION_NEEDED', text: 'More information needed', hint: 'Say what the Data Access Team need in the message.' },
+  { value: 'DECLINED', text: 'Declined', hint: 'Say why in the message.' },
+  { value: 'IN_REVIEW', text: 'In review', hint: 'The Data Access Team have started reviewing it.' }
+]
+
+function renderDecision (found, owner, perApi) {
+  const container = document.getElementById('admin-request-decision')
+  const local = !!productionRequests.find(found.reference)
+  const who = owner ? `${owner.name} (${owner.email})` : 'the requester'
+
+  let recorded = null
+  try {
+    recorded = JSON.parse(window.sessionStorage.getItem(DECISION_KEY) || 'null')
+    window.sessionStorage.removeItem(DECISION_KEY)
+  } catch (e) { /* no banner */ }
+  if (recorded && recorded.reference === found.reference) {
+    const email = decisionEmail(found, recorded.decision, `../../../account/production-credentials/view/?reference=${found.reference}`)
+    document.getElementById('admin-heading').insertAdjacentHTML('beforebegin', `
+      <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="decision-banner-title" data-module="govuk-notification-banner" id="decision-recorded">
+        <div class="govuk-notification-banner__header">
+          <h2 class="govuk-notification-banner__title" id="decision-banner-title">Success</h2>
+        </div>
+        <div class="govuk-notification-banner__content">
+          <p class="govuk-notification-banner__heading">Decision recorded: ${escapeHtml(STATUS_TEXT[recorded.decision.status])}</p>
+          <p class="govuk-body">We have emailed ${escapeHtml(who)}.</p>
+          <details class="govuk-details govuk-!-margin-bottom-0">
+            <summary class="govuk-details__summary"><span class="govuk-details__summary-text">See the email</span></summary>
+            <div class="govuk-details__text" id="decision-email">
+              <p class="govuk-body"><strong>Subject:</strong> ${escapeHtml(email.subject)}</p>
+              <p class="govuk-body">Dear ${escapeHtml(owner ? owner.name : 'requester')},</p>
+              ${email.body}
+              <p class="govuk-body">HMCTS API Marketplace</p>
+            </div>
+          </details>
+        </div>
+      </div>`)
+  }
+
+  const history = found.decisions || []
+  document.getElementById('admin-request-history').innerHTML = history.length
+    ? `<h2 class="govuk-heading-m">Decisions</h2>${table('Decisions', ['Date', 'Decision', ...(perApi ? ['APIs'] : []), 'Message to the requester'],
+      history.slice().reverse().map(d => [formatDate(d.decidedAt), statusTag(d.status), ...(perApi ? [escapeHtml((d.apis || []).join(', '))] : []), escapeHtml(d.note || 'None')]), '')}`
+    : ''
+
+  if (!local) {
+    container.innerHTML = `
+      <h2 class="govuk-heading-m">Record the decision</h2>
+      <p class="govuk-body">This request is made-up example data, so its decision cannot be recorded. Try one you made in this browser.</p>`
+    return
+  }
+
+  const apis = requestApis(found)
+  const radios = DECISIONS.map((d, i) => `
+    <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="decision${i ? '-' + (i + 1) : ''}" name="decision" type="radio" value="${d.value}" aria-describedby="decision-${i + 1}-hint">
+      <label class="govuk-label govuk-radios__label" for="decision${i ? '-' + (i + 1) : ''}">${escapeHtml(d.text)}</label>
+      <div id="decision-${i + 1}-hint" class="govuk-hint govuk-radios__hint">${escapeHtml(d.hint)}</div>
+    </div>`).join('')
+  const apiChoices = perApi
+    ? `<div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Which APIs is this decision for?</legend>
+          <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+            ${apis.map((api, i) => `
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="decision-apis${i ? '-' + (i + 1) : ''}" name="decision-apis" type="checkbox" value="${escapeHtml(api.text)}">
+                <label class="govuk-label govuk-checkboxes__label" for="decision-apis${i ? '-' + (i + 1) : ''}">${escapeHtml(api.text)} ${apiStatusTag(api.status)}</label>
+              </div>`).join('')}
+          </div>
+        </fieldset>
+      </div>`
+    : ''
+
+  container.innerHTML = `
+    <h2 class="govuk-heading-m">Record the decision</h2>
+    <p class="govuk-body">Record what the Data Access Team decided. We email ${escapeHtml(who)} straight away. If it is approved, they sign in and get their own production credentials.</p>
+    <form novalidate id="decision-form">
+      ${apiChoices}
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Decision</legend>
+          <div class="govuk-radios" data-module="govuk-radios">${radios}</div>
+        </fieldset>
+      </div>
+      <div class="govuk-form-group">
+        <label class="govuk-label govuk-label--s" for="decision-note">Message to the requester</label>
+        <div class="govuk-hint" id="decision-note-hint">Goes in the email and on their request page. Optional when approving.</div>
+        <textarea class="govuk-textarea" id="decision-note" name="decision-note" rows="4" aria-describedby="decision-note-hint"></textarea>
+      </div>
+      <button type="submit" class="govuk-button" data-module="govuk-button" id="decision-save">Record decision and email ${escapeHtml(owner ? owner.name : 'the requester')}</button>
+    </form>`
+
+  const form = document.getElementById('decision-form')
+  form.addEventListener('submit', event => {
+    event.preventDefault()
+    const status = (form.querySelector('input[name="decision"]:checked') || {}).value
+    const chosen = Array.from(form.querySelectorAll('input[name="decision-apis"]:checked')).map(input => input.value)
+    const note = form.elements['decision-note'].value.trim()
+    const errors = []
+    if (perApi && !chosen.length) errors.push({ name: 'decision-apis', text: 'Select the APIs this decision is for' })
+    if (!status) errors.push({ name: 'decision', text: 'Select the decision' })
+    if ((status === 'DECLINED' || status === 'MORE_INFORMATION_NEEDED') && !note) {
+      errors.push({ name: 'decision-note', text: status === 'DECLINED' ? 'Enter a message saying why it was declined' : 'Enter a message saying what information is needed' })
+    }
+    showFormErrors(form, errors)
+    if (errors.length) return
+
+    const decision = { status, note, apis: perApi ? chosen : [], decidedAt: new Date().toISOString() }
+    const changes = { decisions: history.concat(decision) }
+    if (perApi) {
+      const items = found.apiItems.map(api => (chosen.includes(api.text) ? { ...api, status } : api))
+      changes.apiItems = items
+      const statuses = new Set(items.map(api => api.status))
+      if (statuses.size === 1) changes.status = status
+    } else {
+      changes.status = status
+    }
+    productionRequests.update(found.reference, changes)
+    try {
+      window.sessionStorage.setItem(DECISION_KEY, JSON.stringify({ reference: found.reference, decision }))
+    } catch (e) { /* the page still shows the decision */ }
+    window.location.reload()
+  })
+}
+
+// The markup the GOV.UK macros render when given an errorMessage, added after the page has loaded.
+function showFormErrors (form, errors) {
+  const column = form.parentElement
+  document.querySelectorAll('.govuk-error-summary, [data-prototype-error]').forEach(el => el.remove())
+  form.querySelectorAll('.govuk-form-group--error').forEach(el => el.classList.remove('govuk-form-group--error'))
+  form.querySelectorAll('.govuk-textarea--error').forEach(el => el.classList.remove('govuk-textarea--error'))
+  document.title = document.title.replace(/^Error: /, '')
+  if (!errors.length) return
+  document.title = 'Error: ' + document.title
+  const firstId = name => (name === 'decision-note' ? 'decision-note' : form.querySelector(`input[name="${name}"]`).id)
+  column.querySelector('h2').insertAdjacentHTML('beforebegin', `
+    <div class="govuk-error-summary" data-module="govuk-error-summary" tabindex="-1">
+      <div role="alert">
+        <h2 class="govuk-error-summary__title">There is a problem</h2>
+        <div class="govuk-error-summary__body">
+          <ul class="govuk-list govuk-error-summary__list">${errors.map(e => `<li><a href="#${firstId(e.name)}">${escapeHtml(e.text)}</a></li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>`)
+  errors.forEach(error => {
+    const field = error.name === 'decision-note'
+      ? document.getElementById('decision-note')
+      : form.querySelector(`input[name="${error.name}"]`).closest('.govuk-radios, .govuk-checkboxes')
+    field.closest('.govuk-form-group').classList.add('govuk-form-group--error')
+    if (field.tagName === 'TEXTAREA') field.classList.add('govuk-textarea--error')
+    field.insertAdjacentHTML('beforebegin', `<p class="govuk-error-message" data-prototype-error><span class="govuk-visually-hidden">Error:</span> ${escapeHtml(error.text)}</p>`)
+  })
+  column.querySelector('.govuk-error-summary').focus()
 }
 
 const RENDERERS = {

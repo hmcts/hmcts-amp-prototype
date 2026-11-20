@@ -1,0 +1,66 @@
+{% extends "template.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+{% set pageTitle = "Production credentials created - HMCTS API Marketplace - GOV.UK" %}
+{% set section = "applications" %}
+{% set hideBackLink = true %}
+
+{# Phase 2, getting production credentials yourself. The secret is shown once, like the Try it now
+   secret on applications/new/confirmation.njk: production-access.js shows it only straight after
+   it is made, and reloading the page does not show it again. #}
+{% block content %}
+<div data-feature-page="production-credentials-self-serve">
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-panel govuk-panel--confirmation">
+      <h1 class="govuk-panel__title" id="production-panel-title">Production credentials created</h1>
+      <div class="govuk-panel__body">Application<br><strong data-application-name></strong></div>
+    </div>
+
+    <h2 class="govuk-heading-m">Production authorisation details</h2>
+    <dl class="govuk-summary-list">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Client ID</dt>
+        <dd class="govuk-summary-list__value"><span class="apim-credential" id="production-client-id"></span></dd>
+      </div>
+    </dl>
+
+    <div id="production-secret-once" hidden>
+      {{ govukWarningText({
+        text: "Copy your production client secret now and keep it somewhere secure. You will not be able to see it again.",
+        iconFallbackText: "Warning"
+      }) }}
+      <p class="govuk-body govuk-!-margin-bottom-1" id="production-secret-label">Client secret</p>
+      <p class="govuk-body govuk-!-font-weight-bold apim-credential" id="production-secret" aria-labelledby="production-secret-label"></p>
+    </div>
+    <p class="govuk-body" id="production-secret-same" hidden>Your production client ID and secret have not changed.</p>
+    <p class="govuk-body" id="production-secret-gone" hidden>
+      The client secret is no longer shown. If you did not keep it, regenerate it from the application page.
+    </p>
+
+    <div id="production-keys-section">
+      <h2 class="govuk-heading-m">Production subscription keys</h2>
+      <p class="govuk-body">Send the key for the API you are calling with each request. You can see these on the application page at any time.</p>
+      <dl class="govuk-summary-list" id="production-keys"></dl>
+    </div>
+
+    <h2 class="govuk-heading-m">Get a production access token</h2>
+    <p class="govuk-body">
+      Use the same OAuth 2.0 client credentials flow as Try it now, with your production client ID and secret. Each
+      API's publisher ID (scope) is on the application page.
+    </p>
+    <pre class="apim-code"><code>curl --request POST \
+  --url https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data grant_type=client_credentials \
+  --data client_id=<span id="production-token-client-id"></span> \
+  --data 'client_secret=&lt;production_client_secret&gt;' \
+  --data scope=&lt;publisher_id&gt;/.default</code></pre>
+
+    {{ govukButton({ text: "I have kept my credentials safe", href: "/account/applications", attributes: { "data-application-link": "" } }) }}
+  </div>
+</div>
+</div>
+{% endblock %}

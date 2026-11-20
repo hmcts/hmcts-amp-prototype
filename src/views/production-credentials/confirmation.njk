@@ -17,10 +17,16 @@
     <p class="govuk-body">We have sent you a confirmation email.</p>
 
     <h2 class="govuk-heading-m">What happens next</h2>
-    <ol class="govuk-list govuk-list--number">
+    <ol class="govuk-list govuk-list--number" data-feature-off="production-credentials-self-serve">
       <li>Your production credentials request is reviewed, and you will get an outcome within 5 working days of submitting it. We may contact you for more information.</li>
       <li>If it is approved, your production client ID, secret, subscription keys and publisher IDs are created.</li>
       <li>We email you with the outcome, and tell you how your credentials will be shared securely.</li>
+    </ol>
+    {# Phase 2, getting production credentials yourself. #}
+    <ol class="govuk-list govuk-list--number" data-feature="production-credentials-self-serve" hidden>
+      <li>Your production credentials request is reviewed, and you will get an outcome within 5 working days of submitting it. We may contact you for more information.</li>
+      <li>We email you with the outcome.</li>
+      <li>If it is approved, sign in and get your production credentials. You see the client secret only once, so have somewhere secure to keep it first.</li>
     </ol>
 
     <p class="govuk-body">
