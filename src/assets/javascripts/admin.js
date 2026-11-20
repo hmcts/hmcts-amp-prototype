@@ -3,7 +3,7 @@ import { features } from './features.js'
 import { ORGANISATION_TYPES, label, triageRows } from './triage.js'
 import { FEATURE, requestApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js'
 
-// The admin pages. The real service has an Admin page for the ADMIN role, with nothing on it
+// The admin pages. The real service has an Admin page for the amp_admin app role, with nothing on it
 // yet, and no cross-user reads. The admin dashboard feature is a read-only design on top: made-up
 // users, applications and requests from admin-seed.json, plus the example user's own
 // applications and requests from this browser.

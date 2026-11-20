@@ -25,7 +25,8 @@
       attributes: { id: "sign-in", "data-action": "sign-in" }
     }) }}
 
-    {# The real service reads the role from the backend, which marks the Marketplace Team as ADMIN. #}
+    {# In the real service the admin role is an Entra app role, amp_admin, assigned to the Marketplace
+       Team in the directory and read from the ID token. #}
     <h2 class="govuk-heading-m">As an admin</h2>
     <p class="govuk-body">
       To see the Admin tab as well, sign in as the same example user with the admin role that the
@@ -36,7 +37,7 @@
       text: "Sign in as an admin",
       href: "../admin/",
       classes: "govuk-button--secondary",
-      attributes: { id: "sign-in-admin", "data-action": "sign-in", "data-role": "ADMIN" }
+      attributes: { id: "sign-in-admin", "data-action": "sign-in", "data-role": "admin" }
     }) }}
   </div>
 </div>

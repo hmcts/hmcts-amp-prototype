@@ -11,8 +11,10 @@ export const DUMMY_USER = {
   name: 'John Doe'
 }
 
-// A signed-in user carries a `role`, as in the real service: 'USER', or 'ADMIN' for the
-// Marketplace Team. An admin can do everything a user can, and also sees the Admin tab.
+// A signed-in user carries `roles`, as in the real service: the app roles Entra put in the ID token.
+// The Marketplace Team hold AMP_ADMIN, which opens the Admin tab; everyone else has none.
+// An admin can do everything a user can.
+export const AMP_ADMIN = 'amp_admin'
 
 const LAST_SIGN_IN_KEY = 'ampPrototypeLastSignIn'
 
@@ -34,22 +36,22 @@ function write (key, value) {
 export const user = {
   current () {
     const stored = read(USER_KEY, null)
-    if (!stored || stored.role === 'USER' || stored.role === 'ADMIN') return stored
-    // Signed in by an older version of the prototype, with permissions or a lower-case role.
-    const wasAdmin = stored.role === 'admin' || (stored.permissions || []).includes('admin')
-    return { ...DUMMY_USER, role: wasAdmin ? 'ADMIN' : 'USER' }
+    if (!stored || Array.isArray(stored.roles)) return stored
+    // Signed in by an older version of the prototype, with a role or permissions instead of roles.
+    const wasAdmin = /^admin$/i.test(stored.role || '') || (stored.permissions || []).includes('admin')
+    return { ...DUMMY_USER, roles: wasAdmin ? [AMP_ADMIN] : [] }
   },
-  // The example user, with the ADMIN role when asked for.
+  // The example user, with the admin app role when asked for (BYPASS_ENTRA_ADMIN in the real service).
   signIn (asAdmin) {
-    const signedIn = { ...DUMMY_USER, role: asAdmin ? 'ADMIN' : 'USER' }
+    const signedIn = { ...DUMMY_USER, roles: asAdmin ? [AMP_ADMIN] : [] }
     write(USER_KEY, signedIn)
     write(LAST_SIGN_IN_KEY, new Date().toISOString())
     return signedIn
   },
-  // isAdmin in the real service's SignIn.ts.
+  // isMarketplaceAdmin in the real service's AdminRole.ts.
   isAdmin () {
     const current = this.current()
-    return !!current && current.role === 'ADMIN'
+    return !!current && (current.roles || []).includes(AMP_ADMIN)
   },
   // When the example user last signed in, for the admin pages' Users table.
   lastSignIn () {

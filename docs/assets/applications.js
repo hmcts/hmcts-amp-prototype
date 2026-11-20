@@ -1,6 +1,6 @@
-import { applications, answers, productionRequests } from './store.js?v=db52eceb83'
-import { features } from './features.js?v=db52eceb83'
-import { FEATURE, coverage, statusTag } from './request-apis.js?v=db52eceb83'
+import { applications, answers, productionRequests } from './store.js?v=7897bd5633'
+import { features } from './features.js?v=7897bd5633'
+import { FEATURE, coverage, statusTag } from './request-apis.js?v=7897bd5633'
 
 const JOURNEY = 'new-application'
 // applications.maxPerUser in the real service's config.

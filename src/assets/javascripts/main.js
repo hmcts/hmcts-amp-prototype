@@ -25,8 +25,8 @@ function applyNavigation (signedIn) {
   link.textContent = 'Your account'
   link.setAttribute('href', link.getAttribute('href').replace(/sign-in\/?$/, 'account/'))
   addItem(list, last, 'applications', 'Applications', 'account/applications/')
-  // As template.njk in the real service: Admin after Applications, for the ADMIN role only.
-  if (signedIn.role === 'ADMIN') {
+  // As template.njk in the real service: Admin after Applications, only for the amp_admin app role.
+  if (user.isAdmin()) {
     addItem(list, last, 'admin', 'Admin', 'admin/', /\/admin\//.test(window.location.pathname))
   }
 }
@@ -59,7 +59,7 @@ document.addEventListener('click', event => {
   if (!action) return
   if (action.dataset.action === 'sign-in') {
     event.preventDefault()
-    user.signIn(action.dataset.role === 'ADMIN')
+    user.signIn(action.dataset.role === 'admin')
     window.location.href = action.getAttribute('href') || './'
   }
   if (action.dataset.action === 'sign-out') {

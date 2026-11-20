@@ -1,5 +1,5 @@
-{# Anyone without the ADMIN role gets the app's own not found page in the real service
-   (AdminController), so this is the not found page. admin.js picks which to show. #}
+{# Anyone without the amp_admin app role gets the app's own not found page in the real service
+   (requireMarketplaceAdmin in AdminRole.ts), so this is the not found page. admin.js picks which to show. #}
 <div id="admin-denied" hidden>
   <h1 class="govuk-heading-xl">Page not found</h1>
   <p class="govuk-body-m">If you typed the web address, check it is correct.</p>
