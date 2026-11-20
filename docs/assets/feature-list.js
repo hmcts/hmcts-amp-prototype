@@ -23,7 +23,13 @@ export default [
   {
     "id": "application-page-tabs",
     "name": "Application page in tabs",
-    "description": "The application page splits into a Try it now tab and a Production tab, with the application's details above them and Delete below. Links about production access open the Production tab.",
+    "description": "The application page splits into a Try it now tab and a Production tab, with the application's details above them and Delete below. Links about production access open the Production tab. If both application page layouts are on, the page uses tabs.",
+    "default": false
+  },
+  {
+    "id": "application-page-cards",
+    "name": "Application page in summary cards",
+    "description": "The application page groups Try it now and Production into a summary card each, so everything stays on one page but each environment is in its own box.",
     "default": false
   }
 ]
