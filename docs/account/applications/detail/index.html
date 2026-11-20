@@ -14,7 +14,7 @@
     
       
   
-  <link href="../../../assets/main.css?v=49a66570ac" rel="stylesheet">
+  <link href="../../../assets/main.css?v=56ca3d24a9" rel="stylesheet">
 
       </head>
   <body class="govuk-template__body">
@@ -228,25 +228,62 @@ data-module="govuk-service-navigation"
           <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
 
+    <span class="govuk-caption-l">Application</span>
     <h1 class="govuk-heading-xl" data-application-name></h1>
 
-    <h2 class="govuk-heading-m">Application details</h2>
+    <h2 class="govuk-heading-m">Basic details</h2>
     <dl class="govuk-summary-list" id="application-details"></dl>
 
     
     <div id="try-it-now" data-section-title="Try it now">
     <h2 class="govuk-heading-m">Authorisation details</h2>
+    <p class="govuk-body">Use your client ID and secret to get an access token from Microsoft Entra ID for your calls.</p>
     <dl class="govuk-summary-list" id="authorisation-details"></dl>
 
-    <h2 class="govuk-heading-m">APIs</h2>
-    <p class="govuk-body" id="apis-empty" hidden>This application has no APIs yet.</p>
-    <dl class="govuk-summary-list" id="application-apis"></dl>
-    
-    <div id="api-instructions"></div>
+    <h2 class="govuk-heading-m">Access to the APIs</h2>
 
-              <a href="../apis/" role="button" draggable="false" class="govuk-button govuk-button--secondary" data-module="govuk-button"                                               id="change-apis">
+<p class="govuk-body" id="access-granted" hidden><strong class="govuk-tag govuk-tag--green">
+  Set up
+</strong>
+</p>
+<div id="application-access" hidden>
+  <div id="access-pending">
+    <div class="govuk-warning-text">
+  <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+  <strong class="govuk-warning-text__text">
+    <span class="govuk-visually-hidden">Warning</span>
+    These credentials will not work yet. Access to the APIs is still being set up, which can take a couple of minutes.
+  </strong>
+</div>
+
+  </div>
+  <p class="govuk-body" id="access-status" role="status" aria-live="polite"></p>
+  <form id="check-access-form" novalidate>
+              <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button"                                               id="check-access">
+  Check access
+</button>
+  </form>
+</div>
+
+    <h2 class="govuk-heading-m">APIs added</h2>
+    
+    <table class="govuk-table" id="application-apis" hidden>
+      <caption class="govuk-table__caption govuk-visually-hidden">APIs added to this application</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">API</th>
+          <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">Action</span></th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body" id="application-apis-rows"></tbody>
+    </table>
+    <p class="govuk-body" id="apis-empty" hidden>No APIs added yet.</p>
+
+    <div class="govuk-button-group">
+                <a href="../apis/" role="button" draggable="false" class="govuk-button govuk-button--secondary" data-module="govuk-button"                                               id="change-apis">
   Add or remove APIs
 </a>
+    </div>
     </div>
 
     <div id="production" data-section-title="Production">
@@ -389,6 +426,6 @@ data-module="govuk-service-navigation"
 
 
       
-  <script type="module" src="../../../assets/main.js?v=49a66570ac"></script>
+  <script type="module" src="../../../assets/main.js?v=56ca3d24a9"></script>
   </body>
 </html>

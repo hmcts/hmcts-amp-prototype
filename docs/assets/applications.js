@@ -1,6 +1,6 @@
-import { applications, answers, productionRequests } from './store.js?v=49a66570ac'
-import { features } from './features.js?v=49a66570ac'
-import { FEATURE, coverage, statusTag } from './request-apis.js?v=49a66570ac'
+import { applications, answers, productionRequests } from './store.js?v=56ca3d24a9'
+import { features } from './features.js?v=56ca3d24a9'
+import { FEATURE, coverage, statusTag } from './request-apis.js?v=56ca3d24a9'
 
 const JOURNEY = 'new-application'
 // applications.maxPerUser in the real service's config.
@@ -179,6 +179,7 @@ function renderConfirmation (application, secret) {
 
   const view = document.getElementById('view-application')
   if (view) view.setAttribute('href', `../../detail/?id=${application.id}`)
+  renderAccess(applications.find(application.id))
 }
 
 // A made-up Entra application ID for an API, the same each time. The real service reads each
@@ -192,6 +193,112 @@ function publisherId (apiValue) {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
 }
 
+// Made-up hex, the same each time for the same seed.
+function madeUpHex (seed, length) {
+  let hash = 2166136261
+  for (let i = 0; i < seed.length; i++) hash = Math.imul(hash ^ seed.charCodeAt(i), 16777619) >>> 0
+  let hex = ''
+  for (let i = 0; hex.length < length; i++) {
+    hash = Math.imul(hash ^ seed.charCodeAt(i % seed.length) ^ i, 16777619) >>> 0
+    hex += (hash >>> 24).toString(16).padStart(2, '0')
+  }
+  return hex.slice(0, length)
+}
+
+// A made-up subscription key for one API. The real service fetches it from API Management.
+function subscriptionKey (application, api) {
+  return madeUpHex(application.clientId + api.value, 32)
+}
+
+// maskSecret in the real service: the hint the backend keeps, then ****. An application made by an
+// older prototype has no hint or expiry, so it gets made-up ones.
+function maskedSecret (application) {
+  return `${application.secretHint || madeUpHex(application.clientId + 'secret', 3)}****`
+}
+
+function secretExpiresAt (application) {
+  if (application.secretExpiresAt) return application.secretExpiresAt
+  const expires = new Date(application.secretCreatedAt || application.createdAt)
+  expires.setFullYear(expires.getFullYear() + 2)
+  return expires.toISOString()
+}
+
+// Access to the APIs (applications/access.njk). In the real service Entra refuses the role grant for
+// a minute or two after an application is made, so the page retries it: 8 attempts, 15 seconds
+// apart (application-access.ts). The prototype grants access 5 seconds after the application is
+// made and retries every 3, so the whole thing can be seen. An application from an older prototype
+// has no accessGranted and counts as set up.
+const ACCESS_ATTEMPTS = 8
+const ACCESS_RETRY_MS = 3000
+const ACCESS_READY_MS = 5000
+let watchingAccess = false
+
+function renderAccess (application) {
+  const granted = document.getElementById('access-granted')
+  const container = document.getElementById('application-access')
+  if (!granted || !container) return
+  if (application.accessGranted !== false) {
+    granted.hidden = false
+    return
+  }
+  container.hidden = false
+  const button = document.getElementById('check-access')
+  if (button) {
+    button.addEventListener('click', event => {
+      event.preventDefault()
+      watchAccess(application.id, container)
+    })
+  }
+  watchAccess(application.id, container)
+}
+
+async function watchAccess (id, container) {
+  if (watchingAccess) return
+  watchingAccess = true
+  const status = document.getElementById('access-status')
+  const show = text => { if (status) status.textContent = text }
+  for (let attempt = 1; attempt <= ACCESS_ATTEMPTS; attempt++) {
+    show(`Setting up access… (attempt ${attempt} of ${ACCESS_ATTEMPTS})`)
+    const application = applications.find(id)
+    if (!application) break
+    if (Date.now() - new Date(application.createdAt).getTime() >= ACCESS_READY_MS) {
+      applications.update(id, { accessGranted: true })
+      container.querySelector('#access-pending')?.remove()
+      container.querySelector('#check-access-form')?.remove()
+      show('Access is set up. These credentials are ready to use.')
+      watchingAccess = false
+      return
+    }
+    if (attempt < ACCESS_ATTEMPTS) await new Promise(resolve => setTimeout(resolve, ACCESS_RETRY_MS))
+  }
+  show('Access is taking longer than expected. Use "Check access" to try again.')
+  watchingAccess = false
+}
+
+// One API's page: applications/api.njk in the real service, with the key behind Show subscription key.
+function renderApi (application) {
+  const api = application.apis.find(item => item.value === query('api'))
+  if (!api) {
+    window.location.href = `../detail/?id=${application.id}`
+    return
+  }
+  document.title = `${api.text} - ${application.name} - HMCTS API Marketplace - GOV.UK`
+  document.querySelectorAll('[data-application-name]').forEach(el => { el.textContent = application.name })
+  set('api-title', api.text)
+  const details = document.getElementById('api-details')
+  if (details) {
+    details.innerHTML =
+      row('API', `<a class="govuk-link" href="../../../api-catalogue/${encodeURIComponent(api.value)}/">${escapeHtml(api.text)}</a>`) +
+      row('Subscribed', formatDate(api.subscribedAt || application.createdAt))
+  }
+  set('subscription-key', subscriptionKey(application, api))
+  const crumbs = document.querySelectorAll('.govuk-breadcrumbs__link')
+  const last = crumbs[crumbs.length - 1]
+  if (last) { last.textContent = application.name; last.setAttribute('href', `../detail/?id=${application.id}`) }
+  const back = document.getElementById('back-to-application')
+  if (back) back.setAttribute('href', `../detail/?id=${application.id}`)
+}
+
 // applications/instructions.njk in the real service, folded away under each API. The tenant and
 // secret stay placeholders. The real reference link goes to the developer portal; the prototype's
 // APIs are made up, so it goes to the API's catalogue page instead.
@@ -199,7 +306,7 @@ function instructionsHtml (application, api) {
   const scope = `${publisherId(api.value)}/.default`
   const title = escapeHtml(api.text)
   return `
-    <details class="govuk-details" id="api-instructions-${api.value}">
+    <details class="govuk-details govuk-!-margin-bottom-0" id="api-instructions-${api.value}">
       <summary class="govuk-details__summary">
         <span class="govuk-details__summary-text">How to get an access token and call ${title}</span>
       </summary>
@@ -237,21 +344,24 @@ function renderDetail (application) {
   if (auth) {
     auth.innerHTML =
       row('Client ID', `<span class="apim-credential" id="client-id">${application.clientId}</span>`) +
-      row('Client secret', '<span class="govuk-hint">Shown once when created. Regenerate it to get a new one.</span>')
+      row('Client secret', `<span class="apim-credential" id="masked-secret">${escapeHtml(maskedSecret(application))}</span><br><span class="govuk-hint">Expires ${formatDate(secretExpiresAt(application))}</span>`)
   }
+  renderAccess(application)
 
-  const apis = document.getElementById('application-apis')
+  const table = document.getElementById('application-apis')
+  const rows = document.getElementById('application-apis-rows')
   const empty = document.getElementById('apis-empty')
-  if (apis && empty) {
+  if (table && rows && empty) {
+    table.hidden = !application.apis.length
     empty.hidden = application.apis.length > 0
-    apis.innerHTML = application.apis.map(api =>
-      row(api.text, `<span class="apim-credential">${application.clientId.replace(/-/g, '').slice(0, 24)}</span>`)
-    ).join('')
-  }
-
-  const instructions = document.getElementById('api-instructions')
-  if (instructions) {
-    instructions.innerHTML = application.apis.map(api => instructionsHtml(application, api)).join('')
+    rows.innerHTML = application.apis.map(api => `
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">${escapeHtml(api.text)}</td>
+        <td class="govuk-table__cell"><a class="govuk-link" href="../api/?id=${application.id}&api=${encodeURIComponent(api.value)}">View subscription key<span class="govuk-visually-hidden"> for ${escapeHtml(api.text)}</span></a></td>
+      </tr>
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell" colspan="2">${instructionsHtml(application, api)}</td>
+      </tr>`).join('')
   }
 
   const request = productionRequests.forApplication(application.id)
@@ -316,7 +426,11 @@ function showNotice () {
     window.sessionStorage.removeItem(NOTICE_KEY)
   } catch (e) { /* no notice */ }
   if (!notice) return
-  document.querySelector('h1').insertAdjacentHTML('beforebegin', `
+  // Above the caption when the page has one, as components/notice.njk in the real service.
+  const heading = document.querySelector('h1')
+  const caption = heading.previousElementSibling
+  const anchor = caption && caption.classList.contains('govuk-caption-l') ? caption : heading
+  anchor.insertAdjacentHTML('beforebegin', `
     <div class="govuk-notification-banner${notice.success ? ' govuk-notification-banner--success' : ''}" role="${notice.success ? 'alert' : 'region'}" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner" id="notice">
       <div class="govuk-notification-banner__header">
         <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">${escapeHtml(notice.title)}</h2>
@@ -379,7 +493,11 @@ function renderEditApis (application) {
 
     const added = selected.filter(api => !current.includes(api.value))
     const removed = current.filter(value => !selected.some(api => api.value === value))
-    applications.update(application.id, { apis: selected })
+    // An API kept keeps its subscription; one added is subscribed now.
+    const now = new Date().toISOString()
+    applications.update(application.id, {
+      apis: selected.map(api => application.apis.find(kept => kept.value === api.value) || { ...api, subscribedAt: now })
+    })
     try {
       window.sessionStorage.setItem(NOTICE_KEY, JSON.stringify({
         success: true,
@@ -424,6 +542,10 @@ if (current === 'new/confirmation') {
 if (current === 'apis') {
   const application = requireApplication('../')
   if (application) renderEditApis(application)
+}
+if (current === 'api') {
+  const application = requireApplication('../')
+  if (application) renderApi(application)
 }
 if (current === 'detail') {
   const application = requireApplication('../')
