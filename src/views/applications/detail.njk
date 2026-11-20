@@ -58,6 +58,18 @@
       </p>
     </div>
 
+    {# Phase 2, getting production credentials yourself: approved APIs waiting to be collected, and
+       the production credentials once made. production-access.js fills it in. #}
+    <div data-feature="production-credentials-self-serve" hidden>
+      <div id="production-ready"></div>
+      <div id="production-section" hidden>
+        <h2 class="govuk-heading-m">Production credentials</h2>
+        <dl class="govuk-summary-list" id="production-credentials"></dl>
+        <h3 class="govuk-heading-s">Production subscription keys</h3>
+        <dl class="govuk-summary-list" id="production-keys"></dl>
+      </div>
+    </div>
+
     <h2 class="govuk-heading-m">Delete this application</h2>
     <p class="govuk-body">Its client ID, secret and subscription keys stop working straight away.</p>
     {{ govukButton({

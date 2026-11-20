@@ -15,7 +15,7 @@ export const STATUS_TEXT = {
   DECLINED: 'Declined'
 }
 
-const TAG_CLASS = {
+export const TAG_CLASS = {
   SUBMITTED: 'govuk-tag--blue',
   IN_REVIEW: 'govuk-tag--light-blue',
   MORE_INFORMATION_NEEDED: 'govuk-tag--yellow',

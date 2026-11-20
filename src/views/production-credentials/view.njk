@@ -21,6 +21,11 @@
       <br>Submitted <span id="request-submitted">{{ request.submittedAt | date }}</span>
     </p>
 
+    {# Phase 2, getting production credentials yourself: the decision, and the way to the credentials. #}
+    <div data-feature="production-credentials-self-serve" hidden>
+      <div id="request-outcome"></div>
+    </div>
+
     {# Phase 2, production requests for each API: each API in the request and its own outcome. #}
     <div data-feature="production-request-per-api" hidden>
       <h2 class="govuk-heading-m">APIs in this request</h2>

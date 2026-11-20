@@ -1,6 +1,6 @@
-import { features } from './features.js?v=7897bd5633'
-import { applications, productionRequests, user } from './store.js?v=7897bd5633'
-import { OWN_TEAM_ONLY } from './triage.js?v=7897bd5633'
+import { features } from './features.js?v=d0ea7e9560'
+import { applications, productionRequests, user } from './store.js?v=d0ea7e9560'
+import { OWN_TEAM_ONLY } from './triage.js?v=d0ea7e9560'
 
 // Not in the real service: an application part-way through going live, to show production
 // requests for each API without filling in the forms first. Added once; after that the button
@@ -39,17 +39,40 @@ function addExample () {
       organisationType: 'other-government',
       dataRecipients: [OWN_TEAM_ONLY],
       dataCombined: 'no',
-      submittedAt: daysAgo(12)
+      submittedAt: daysAgo(12),
+      // How the Court Schedule approval was recorded, for getting production credentials yourself.
+      decisions: [{ status: 'APPROVED', apis: ['Court Schedule'], note: '', decidedAt: daysAgo(3) }]
     })
   }
   const settings = window.location.pathname.replace(/prototype-settings\/.*$/, '')
   window.location.href = `${settings}account/applications/detail/?id=${application.id}`
 }
 
+// Everything the prototype has made in this browser except the user and the feature choices:
+// applications, requests, half-finished journeys and one-off notices.
+function clearData () {
+  try {
+    const keys = []
+    for (let i = 0; i < window.localStorage.length; i++) keys.push(window.localStorage.key(i))
+    keys.filter(key => key === 'ampPrototypeApplications' || key === 'ampPrototypeProductionRequests' || key.startsWith('ampPrototypeAnswers:'))
+      .forEach(key => window.localStorage.removeItem(key))
+    window.sessionStorage.clear()
+  } catch (e) { /* nothing stored */ }
+  const url = new URL(window.location.href)
+  url.search = '?cleared=1'
+  window.location.href = url.toString()
+}
+
 function escapeHtml (value) {
   const div = document.createElement('div')
   div.textContent = value
   return div.innerHTML
+}
+
+// Switching a feature on switches on what it needs, so say so next to it.
+function requiresText (feature) {
+  const names = (feature.requires || []).map(id => (features.all().find(f => f.id === id) || { name: id }).name)
+  return names.length ? ` Switches on ${names.map(name => `‘${name}’`).join(' and ')} too.` : ''
 }
 
 function render () {
@@ -69,7 +92,7 @@ function render () {
           aria-describedby="${id}-item-hint"${feature.on ? ' checked' : ''}>
         <label class="govuk-label govuk-checkboxes__label" for="${id}">${escapeHtml(feature.name)}</label>
         <div id="${id}-item-hint" class="govuk-hint govuk-checkboxes__hint">
-          ${escapeHtml(feature.description)}${feature.default ? ' On by default.' : ''}
+          ${escapeHtml(feature.description)}${requiresText(feature)}${feature.default ? ' On by default.' : ''}
         </div>
       </div>`
   }).join('')
@@ -86,6 +109,18 @@ function render () {
   const link = document.getElementById('features-link')
   link.href = share.toString()
   link.textContent = share.toString()
+
+  if (new URLSearchParams(window.location.search).get('cleared')) {
+    document.querySelector('h1').insertAdjacentHTML('beforebegin', `
+      <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" data-module="govuk-notification-banner" id="cleared">
+        <div class="govuk-notification-banner__header">
+          <h2 class="govuk-notification-banner__title">Success</h2>
+        </div>
+        <div class="govuk-notification-banner__content">
+          <p class="govuk-notification-banner__heading">Example data cleared. You have no applications or requests.</p>
+        </div>
+      </div>`)
+  }
 
   if (new URLSearchParams(window.location.search).get('saved')) {
     form.insertAdjacentHTML('beforebegin', `
@@ -104,3 +139,5 @@ render()
 
 const example = document.getElementById('example-data')
 if (example) example.addEventListener('click', event => { event.preventDefault(); addExample() })
+const clear = document.getElementById('clear-data')
+if (clear) clear.addEventListener('click', event => { event.preventDefault(); clearData() })

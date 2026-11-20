@@ -1,0 +1,71 @@
+{% extends "template.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+{% set pageTitle = "Get production credentials - HMCTS API Marketplace - GOV.UK" %}
+{% set section = "applications" %}
+{% set breadcrumbs = [
+  { text: "Home", href: "/" },
+  { text: "Your account", href: "/account" },
+  { text: "Manage applications", href: "/account/applications" }
+] %}
+
+{# Phase 2, getting production credentials yourself: not in the real service, where production
+   credentials are made by hand once a request is approved. production-access.js fills it in. #}
+{% block content %}
+<div data-feature-page="production-credentials-self-serve">
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <span class="govuk-caption-l" data-application-name></span>
+    <h1 class="govuk-heading-xl" id="production-heading">Get production credentials</h1>
+
+    <p class="govuk-body" id="production-nothing" hidden>
+      No production access is waiting for this application.
+      <a class="govuk-link" href="/account/applications" data-application-link>Go back to the application</a>.
+    </p>
+
+    <div id="production-intro">
+      <p class="govuk-body">The Data Access Team have approved production access for:</p>
+      <ul class="govuk-list govuk-list--bullet" id="production-approved-apis"></ul>
+
+      <h2 class="govuk-heading-m">What you will get</h2>
+      <div id="production-new">
+        <ul class="govuk-list govuk-list--bullet">
+          <li>a production client ID</li>
+          <li>a production client secret, which you see only once</li>
+          <li>a production subscription key for each API above</li>
+        </ul>
+        <p class="govuk-body">They are separate from your Try it now credentials, which keep working.</p>
+        {{ govukWarningText({
+          text: "You will see the client secret only once. Have somewhere secure to keep it before you continue, such as a key vault. Do not email it or put it in source code.",
+          iconFallbackText: "Warning"
+        }) }}
+      </div>
+      <div id="production-adding" hidden>
+        <p class="govuk-body">
+          Each API above gets its own production subscription key. Your production client ID and secret stay the
+          same, so you do not need to change them.
+        </p>
+      </div>
+    </div>
+
+    <form method="post" action="/account/applications/production" novalidate id="production-form">
+      {{ govukCheckboxes({
+        name: "terms",
+        idPrefix: "production-terms",
+        fieldset: { legend: { text: "Production terms of use", classes: "govuk-fieldset__legend--m" } },
+        hint: { text: "You must use the data only for the purpose you gave in your request, and tell us straight away if your credentials may have been seen by anyone else." },
+        items: [{ value: "agree", text: "I agree to the production terms of use" }]
+      }) }}
+
+      {{ govukButton({ text: "Generate production credentials", attributes: { id: "production-generate" } }) }}
+      <p class="govuk-body" id="create-status" role="status" aria-live="polite" hidden><span
+        id="create-status-message"></span><span id="create-status-dots" aria-hidden="true"></span></p>
+    </form>
+    <p class="govuk-body"><a class="govuk-link" href="/account/applications" data-application-link>Cancel</a></p>
+  </div>
+</div>
+</div>
+{% endblock %}

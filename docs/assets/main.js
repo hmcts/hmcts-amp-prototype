@@ -1,11 +1,12 @@
-import { initAll } from './govuk-frontend.min.js?v=7897bd5633'
+import { initAll } from './govuk-frontend.min.js?v=d0ea7e9560'
 // First, so a ?features= link is applied before any page script checks a feature.
-import './features.js?v=7897bd5633'
-import { user } from './store.js?v=7897bd5633'
-import './applications.js?v=7897bd5633'
-import './production-credentials.js?v=7897bd5633'
-import './admin.js?v=7897bd5633'
-import './prototype-settings.js?v=7897bd5633'
+import './features.js?v=d0ea7e9560'
+import { user } from './store.js?v=d0ea7e9560'
+import './applications.js?v=d0ea7e9560'
+import './production-credentials.js?v=d0ea7e9560'
+import './production-access.js?v=d0ea7e9560'
+import './admin.js?v=d0ea7e9560'
+import './prototype-settings.js?v=d0ea7e9560'
 
 initAll()
 

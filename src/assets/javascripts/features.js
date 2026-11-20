@@ -11,6 +11,9 @@ import featureList from './feature-list.js'
 // with data-feature-off="id" only when it is off (the MVP behaviour it replaces). A whole page
 // that belongs to a feature wraps its content in data-feature-page="id". Page scripts check
 // features.isOn(id) before doing anything for a feature.
+//
+// A feature that lists others in `requires` is on only when they are on too, and switching it
+// on (here or in a link) switches them on with it.
 
 const KEY = 'ampPrototypeFeatures'
 
@@ -37,11 +40,19 @@ export const features = {
   isOn (id) {
     const feature = featureList.find(f => f.id === id)
     if (!feature) return false
-    return id in choices ? choices[id] : !!feature.default
+    const own = id in choices ? choices[id] : !!feature.default
+    return own && (feature.requires || []).every(required => this.isOn(required))
   },
-  // Sets every feature at once, from a map of id to true or false.
+  // Sets every feature at once, from a map of id to true or false, with what each one requires.
   set (wanted) {
-    choices = Object.fromEntries(featureList.map(f => [f.id, !!wanted[f.id]]))
+    const on = new Set(Object.keys(wanted).filter(id => wanted[id]))
+    const add = id => {
+      on.add(id)
+      const feature = featureList.find(f => f.id === id)
+      ;((feature && feature.requires) || []).forEach(required => { if (!on.has(required)) add(required) })
+    }
+    Array.from(on).forEach(add)
+    choices = Object.fromEntries(featureList.map(f => [f.id, on.has(f.id)]))
     writeChoices(choices)
   },
   reset () {

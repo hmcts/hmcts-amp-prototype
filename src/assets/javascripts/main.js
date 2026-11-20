@@ -4,6 +4,7 @@ import './features.js'
 import { user } from './store.js'
 import './applications.js'
 import './production-credentials.js'
+import './production-access.js'
 import './admin.js'
 import './prototype-settings.js'
 

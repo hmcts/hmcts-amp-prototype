@@ -1,4 +1,4 @@
-import { productionRequests } from './store.js?v=7897bd5633'
+import { productionRequests } from './store.js?v=d0ea7e9560'
 
 // Phase 2: production requests for each API (feature 'production-request-per-api'). Not in the
 // real service, where a request belongs to a whole application and records no APIs. Here a
@@ -15,7 +15,7 @@ export const STATUS_TEXT = {
   DECLINED: 'Declined'
 }
 
-const TAG_CLASS = {
+export const TAG_CLASS = {
   SUBMITTED: 'govuk-tag--blue',
   IN_REVIEW: 'govuk-tag--light-blue',
   MORE_INFORMATION_NEEDED: 'govuk-tag--yellow',

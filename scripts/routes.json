@@ -36,6 +36,9 @@
   { "view": "applications/instructions.njk", "url": "/account/applications/instructions/" },
   { "view": "applications/secret-once.njk",  "url": "/account/applications/secret-once/" },
   { "view": "applications/unavailable.njk",  "url": "/account/applications/unavailable/" },
+  { "view": "applications/production/index.njk",      "url": "/account/applications/production/" },
+  { "view": "applications/production/created.njk",    "url": "/account/applications/production/created/" },
+  { "view": "applications/production/regenerate.njk", "url": "/account/applications/production/regenerate/" },
 
   { "view": "applications/new/index.njk",         "url": "/account/applications/new/" },
   { "view": "applications/new/details.njk",       "url": "/account/applications/new/details/" },
