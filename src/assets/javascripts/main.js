@@ -5,6 +5,8 @@ import { user } from './store.js'
 import './applications.js'
 import './production-credentials.js'
 import './production-access.js'
+// After the page scripts have filled the application page, and before initAll starts the tabs.
+import './application-layout.js'
 import './admin.js'
 import './prototype-settings.js'
 

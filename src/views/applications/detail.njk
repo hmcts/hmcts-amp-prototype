@@ -21,6 +21,9 @@
     <h2 class="govuk-heading-m">Application details</h2>
     <dl class="govuk-summary-list" id="application-details"></dl>
 
+    {# Phase 2, 'application-page-tabs': application-layout.js makes these two sections into tabs.
+       Without it, they show as in the real service. #}
+    <div id="try-it-now" data-section-title="Try it now">
     <h2 class="govuk-heading-m">Authorisation details</h2>
     <dl class="govuk-summary-list" id="authorisation-details"></dl>
 
@@ -37,7 +40,9 @@
       classes: "govuk-button--secondary",
       attributes: { id: "change-apis" }
     }) }}
+    </div>
 
+    <div id="production" data-section-title="Production">
     <h2 class="govuk-heading-m">Going live</h2>
     {# The real service renders one of these, depending on whether the application has a production
        request. Both ship here and applications.js shows the right one. #}
@@ -68,6 +73,7 @@
         <h3 class="govuk-heading-s">Production subscription keys</h3>
         <dl class="govuk-summary-list" id="production-keys"></dl>
       </div>
+    </div>
     </div>
 
     <h2 class="govuk-heading-m">Delete this application</h2>

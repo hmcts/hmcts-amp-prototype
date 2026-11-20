@@ -19,5 +19,11 @@ export default [
       "admin-dashboard"
     ],
     "default": false
+  },
+  {
+    "id": "application-page-tabs",
+    "name": "Application page in tabs",
+    "description": "The application page splits into a Try it now tab and a Production tab, with the application's details above them and Delete below. Links about production access open the Production tab.",
+    "default": false
   }
 ]

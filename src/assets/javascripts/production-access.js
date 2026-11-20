@@ -156,7 +156,7 @@ function renderRequestOutcome () {
         <a class="govuk-button govuk-!-margin-bottom-0" href="../../applications/production/?id=${application.id}" id="get-production-credentials">${application.production ? 'Add to your production credentials' : 'Get production credentials'}</a>`, true))
     } else if (doneHere.length) {
       parts.push(`<p class="govuk-body" id="production-collected">You got production credentials for ${list(doneHere.map(api => api.text))} on ${formatDate(doneHere[0].createdAt)}.
-        <a class="govuk-link" href="../../applications/detail/?id=${application.id}">See them on the application page</a>.</p>`)
+        <a class="govuk-link" href="../../applications/detail/?id=${application.id}#production">See them on the application page</a>.</p>`)
     }
   }
 
@@ -225,7 +225,7 @@ function requireApplication () {
 function fillName (application) {
   document.querySelectorAll('[data-application-name]').forEach(el => { el.textContent = application.name })
   document.querySelectorAll('[data-application-link]').forEach(el => {
-    el.setAttribute('href', `${page() === 'production' ? '../' : '../../'}detail/?id=${application.id}`)
+    el.setAttribute('href', `${page() === 'production' ? '../' : '../../'}detail/?id=${application.id}#production`)
   })
 }
 
@@ -338,7 +338,7 @@ function renderRegenerate () {
   if (!application) return
   fillName(application)
   if (!application.production) {
-    window.location.href = `../../detail/?id=${application.id}`
+    window.location.href = `../../detail/?id=${application.id}#production`
     return
   }
   document.getElementById('regenerate-secret').addEventListener('click', event => {
