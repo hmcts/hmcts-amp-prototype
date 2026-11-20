@@ -1,6 +1,6 @@
-import { applications, answers, productionRequests } from './store.js?v=56ca3d24a9'
-import { features } from './features.js?v=56ca3d24a9'
-import { FEATURE, coverage, statusTag } from './request-apis.js?v=56ca3d24a9'
+import { applications, answers, productionRequests } from './store.js?v=cc300b8f3c'
+import { features } from './features.js?v=cc300b8f3c'
+import { FEATURE, coverage, statusTag } from './request-apis.js?v=cc300b8f3c'
 
 const JOURNEY = 'new-application'
 // applications.maxPerUser in the real service's config.
@@ -45,6 +45,8 @@ function renderList () {
   const empty = document.getElementById('applications-empty')
   if (!container) return
   showLimit()
+  // components/notice.njk, which the real list page includes: for example after deleting an application.
+  showNotice()
   const all = applications.all()
   empty.hidden = all.length > 0
   if (!all.length) { container.innerHTML = ''; return }
@@ -385,13 +387,39 @@ function renderDetail (application) {
   showNotice()
 
   const remove = document.getElementById('delete-application')
-  if (remove) {
-    remove.addEventListener('click', event => {
-      event.preventDefault()
-      applications.remove(application.id)
-      window.location.href = '../'
-    })
+  if (remove) remove.setAttribute('href', `../delete/?id=${application.id}`)
+}
+
+// Are you sure you want to delete this application? Then back to the list with a notice, as
+// the real service's ApplicationsController does.
+function renderDelete (application) {
+  const form = document.querySelector('form')
+  if (!form) return
+  const caption = document.querySelector('.govuk-caption-l')
+  if (caption) caption.textContent = application.name
+  const warning = document.querySelector('#delete-warning .govuk-warning-text__text')
+  if (warning) {
+    warning.innerHTML = `<span class="govuk-visually-hidden">Warning</span>
+      Its client ID, client secret and all ${application.apis.length} subscription keys will stop working straight away. You cannot undo this.`
   }
+  const crumbs = document.querySelectorAll('.govuk-breadcrumbs__link')
+  const last = crumbs[crumbs.length - 1]
+  if (last) { last.textContent = application.name; last.setAttribute('href', `../detail/?id=${application.id}`) }
+  const keep = document.getElementById('keep-application')
+  if (keep) keep.setAttribute('href', `../detail/?id=${application.id}`)
+
+  form.addEventListener('submit', event => {
+    event.preventDefault()
+    applications.remove(application.id)
+    try {
+      window.sessionStorage.setItem(NOTICE_KEY, JSON.stringify({
+        success: true,
+        title: 'Success',
+        text: `${application.name} has been deleted. Its client ID, secret and subscription keys no longer work.`
+      }))
+    } catch (e) { /* the list still shows it has gone */ }
+    window.location.href = '../'
+  })
 }
 
 // Phase 2, production requests for each API: where each of the application's APIs stands, and a
@@ -542,6 +570,10 @@ if (current === 'new/confirmation') {
 if (current === 'apis') {
   const application = requireApplication('../')
   if (application) renderEditApis(application)
+}
+if (current === 'delete') {
+  const application = requireApplication('../')
+  if (application) renderDelete(application)
 }
 if (current === 'api') {
   const application = requireApplication('../')
