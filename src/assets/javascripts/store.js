@@ -79,7 +79,9 @@ export const applications = {
       apis: details.apis || [],
       environment: details.environment || 'Sandbox',
       clientId: crypto.randomUUID(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      // Entra refuses the role grant for a minute or two after an application is made.
+      accessGranted: false
     }
     write(APPS_KEY, this.all().concat(application))
     return application
@@ -97,7 +99,11 @@ export const applications = {
     const secret = Array.from(crypto.getRandomValues(new Uint8Array(24)))
       .map(b => b.toString(16).padStart(2, '0'))
       .join('')
-    this.update(id, { secretCreatedAt: new Date().toISOString() })
+    // The backend keeps the secret's first 3 characters as a hint, and Entra's expiry: 2 years.
+    const now = new Date()
+    const expires = new Date(now)
+    expires.setFullYear(expires.getFullYear() + 2)
+    this.update(id, { secretCreatedAt: now.toISOString(), secretHint: secret.slice(0, 3), secretExpiresAt: expires.toISOString() })
     return secret
   }
 }

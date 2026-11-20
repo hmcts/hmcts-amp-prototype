@@ -2,7 +2,7 @@
 <html lang="en" class="govuk-template govuk-template--rebranded">
   <head>
     <meta charset="utf-8">
-    <title>undefined - undefined - HMCTS API Marketplace - GOV.UK</title>
+    <title>API - Manage applications - HMCTS API Marketplace - GOV.UK</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#1d70b8">
 
@@ -14,7 +14,7 @@
     
       
   
-  <link href="../../../assets/main.css?v=49a66570ac" rel="stylesheet">
+  <link href="../../../assets/main.css?v=56ca3d24a9" rel="stylesheet">
 
       </head>
   <body class="govuk-template__body">
@@ -219,7 +219,7 @@ data-module="govuk-service-navigation"
       <a class="govuk-breadcrumbs__link" href="../../../account/applications">Manage applications</a>
     </li>
         <li class="govuk-breadcrumbs__list-item">
-      <a class="govuk-breadcrumbs__link" href="../../../account/applications"></a>
+      <a class="govuk-breadcrumbs__link" href="../../../account/applications">Application</a>
     </li>
     </ol>
 </nav>
@@ -227,31 +227,26 @@ data-module="govuk-service-navigation"
           <main class="govuk-main-wrapper" id="main-content">
           <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <span class="govuk-caption-l"></span>
-    <h1 class="govuk-heading-xl"></h1>
+    <span class="govuk-caption-l" data-application-name></span>
+    <h1 class="govuk-heading-xl" id="api-title"></h1>
 
-        <dl class="govuk-summary-list">
-    <div class="govuk-summary-list__row">
-    <dt class="govuk-summary-list__key">
-      API
-    </dt>
-    <dd class="govuk-summary-list__value">
-      <a class="govuk-link" href="../../../api-catalogue"></a>
-    </dd>
-      </div>
-      <div class="govuk-summary-list__row">
-    <dt class="govuk-summary-list__key">
-      Subscribed
-    </dt>
-    <dd class="govuk-summary-list__value">
-      
-    </dd>
-      </div>
-  </dl>
+    <dl class="govuk-summary-list" id="api-details"></dl>
 
-          <p class="govuk-body" id="subscription-key-unavailable">The subscription key could not be loaded just now. Try again in a few minutes.</p>
+        <details class="govuk-details"                                               id="show-subscription-key">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      Show subscription key
+    </span>
+  </summary>
+  <div class="govuk-details__text">
+          <p class="govuk-body apim-credential govuk-!-font-weight-bold" id="subscription-key"></p>
+      <p class="govuk-body">Send it in the <code>Ocp-Apim-Subscription-Key</code> header with every call to this API. Keep it secret.</p>
     
-    <p class="govuk-body"><a class="govuk-link" href="../../../account/applications">Back to </a></p>
+  </div>
+</details>
+
+
+    <p class="govuk-body"><a class="govuk-link" href="../../../account/applications" id="back-to-application">Back to <span data-application-name></span></a></p>
   </div>
 </div>
         </main>
@@ -354,6 +349,6 @@ data-module="govuk-service-navigation"
 
 
       
-  <script type="module" src="../../../assets/main.js?v=49a66570ac"></script>
+  <script type="module" src="../../../assets/main.js?v=56ca3d24a9"></script>
   </body>
 </html>

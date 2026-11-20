@@ -16,30 +16,45 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
 
+    <span class="govuk-caption-l">Application</span>
     <h1 class="govuk-heading-xl" data-application-name></h1>
 
-    <h2 class="govuk-heading-m">Application details</h2>
+    <h2 class="govuk-heading-m">Basic details</h2>
     <dl class="govuk-summary-list" id="application-details"></dl>
 
     {# Phase 2, 'application-page-tabs' and 'application-page-cards': application-layout.js makes
        these two sections into tabs or summary cards. Without either, they show as in the real service. #}
     <div id="try-it-now" data-section-title="Try it now">
     <h2 class="govuk-heading-m">Authorisation details</h2>
+    <p class="govuk-body">Use your client ID and secret to get an access token from Microsoft Entra ID for your calls.</p>
     <dl class="govuk-summary-list" id="authorisation-details"></dl>
 
-    <h2 class="govuk-heading-m">APIs</h2>
-    <p class="govuk-body" id="apis-empty" hidden>This application has no APIs yet.</p>
-    <dl class="govuk-summary-list" id="application-apis"></dl>
-    {# The real service folds each API's instructions (applications/instructions.njk) into a row
-       under that API in its table. Here applications.js adds them below the list, one per API. #}
-    <div id="api-instructions"></div>
+    {% include "applications/access.njk" %}
 
-    {{ govukButton({
-      text: "Add or remove APIs",
-      href: "../apis/",
-      classes: "govuk-button--secondary",
-      attributes: { id: "change-apis" }
-    }) }}
+    <h2 class="govuk-heading-m">APIs added</h2>
+    {# As the real service: a table with a View subscription key link for each API, and the API's
+       instructions (applications/instructions.njk) folded away in a full-width row under it.
+       applications.js fills in the rows. #}
+    <table class="govuk-table" id="application-apis" hidden>
+      <caption class="govuk-table__caption govuk-visually-hidden">APIs added to this application</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">API</th>
+          <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">Action</span></th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body" id="application-apis-rows"></tbody>
+    </table>
+    <p class="govuk-body" id="apis-empty" hidden>No APIs added yet.</p>
+
+    <div class="govuk-button-group">
+      {{ govukButton({
+        text: "Add or remove APIs",
+        href: "../apis/",
+        classes: "govuk-button--secondary",
+        attributes: { id: "change-apis" }
+      }) }}
+    </div>
     </div>
 
     <div id="production" data-section-title="Production">
