@@ -11,6 +11,8 @@
   { text: application.name, href: "/account/applications" }
 ] %}
 
+{# The real service renders this page from the backend. Here applications.js fills in the
+   application, using the id in the query string, and deletes it from the browser's own store. #}
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
@@ -19,14 +21,15 @@
 
     {{ govukWarningText({
       text: "Its client ID, client secret and all " + application.apis.length + " subscription keys will stop working straight away. You cannot undo this.",
-      iconFallbackText: "Warning"
+      iconFallbackText: "Warning",
+      attributes: { id: "delete-warning" }
     }) }}
 
     <form method="post" action="/account/applications/delete" novalidate>
       <input type="hidden" name="confirm" value="yes">
       <div class="govuk-button-group">
         {{ govukButton({ text: "Yes, delete application", classes: "govuk-button--warning", attributes: { id: "confirm-delete" } }) }}
-        <a class="govuk-link" href="/account/applications">No, keep it</a>
+        <a class="govuk-link" href="/account/applications" id="keep-application">No, keep it</a>
       </div>
     </form>
   </div>
