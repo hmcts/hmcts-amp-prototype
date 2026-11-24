@@ -11,7 +11,8 @@
   { text: "Manage applications", href: "/account/applications" }
 ] %}
 
-{# Phase 2, getting production credentials yourself. production-access.js does the work. #}
+{# Phase 2, getting production credentials yourself, with 'regenerate-client-secret': without that,
+   production-access.js sends you back to the application page. It does the work. #}
 {% block content %}
 <div data-feature-page="production-credentials-self-serve">
 <div class="govuk-grid-row">

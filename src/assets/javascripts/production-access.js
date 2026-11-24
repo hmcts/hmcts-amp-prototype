@@ -11,6 +11,8 @@ import { FEATURE as PER_API, TAG_CLASS, coverage, requestApis } from './request-
 export const FEATURE = 'production-credentials-self-serve'
 
 const SECRET_KEY = 'ampPrototypeProductionSecret'
+// Regenerating the production secret is part of 'regenerate-client-secret', with the Try it now one.
+const REGENERATE = 'regenerate-client-secret'
 
 export function on () {
   return features.isOn(FEATURE)
@@ -29,11 +31,14 @@ function formatDate (iso) {
     : new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(parsed)
 }
 
-function row (key, value) {
+function row (key, value, action) {
   return `
-    <div class="govuk-summary-list__row">
+    <div class="govuk-summary-list__row${action === null ? ' govuk-summary-list__row--no-actions' : ''}">
       <dt class="govuk-summary-list__key">${escapeHtml(key)}</dt>
-      <dd class="govuk-summary-list__value">${value}</dd>
+      <dd class="govuk-summary-list__value">${value}</dd>${action ? `
+      <dd class="govuk-summary-list__actions">
+        <a class="govuk-link" href="${action.href}" id="${action.id}">${action.text}<span class="govuk-visually-hidden"> ${action.hidden}</span></a>
+      </dd>` : ''}
     </div>`
 }
 
@@ -189,11 +194,14 @@ function renderApplicationProduction () {
   const production = application.production
   section.hidden = !production
   if (!production) return
+  // With regenerating on, the secret's row has a Regenerate action, so the other rows say they have none.
+  const regenerate = features.isOn(REGENERATE)
+  const none = regenerate ? null : undefined
   document.getElementById('production-credentials').innerHTML =
-    row('Client ID', `<span class="apim-credential" id="production-client-id">${production.clientId}</span>`) +
-    row('Client secret', `<span class="govuk-hint">Shown once, on ${formatDate(production.secretCreatedAt)}.</span>
-      <a class="govuk-link" href="../production/regenerate/?id=${application.id}" id="regenerate-production-secret">Regenerate client secret</a>`) +
-    row('Created', formatDate(production.createdAt))
+    row('Client ID', `<span class="apim-credential" id="production-client-id">${production.clientId}</span>`, none) +
+    row('Client secret', `<span class="govuk-hint">Shown once, on ${formatDate(production.secretCreatedAt)}.</span>`,
+      regenerate ? { href: `../production/regenerate/?id=${application.id}`, text: 'Regenerate', hidden: 'production client secret', id: 'regenerate-production-secret' } : none) +
+    row('Created', formatDate(production.createdAt), none)
   document.getElementById('production-keys').innerHTML = production.apis.map(api =>
     row(api.text, `<span class="apim-credential">${api.subscriptionKey}</span>`)).join('')
 }
@@ -337,7 +345,7 @@ function renderRegenerate () {
   const application = requireApplication()
   if (!application) return
   fillName(application)
-  if (!application.production) {
+  if (!application.production || !features.isOn(REGENERATE)) {
     window.location.href = `../../detail/?id=${application.id}#production`
     return
   }

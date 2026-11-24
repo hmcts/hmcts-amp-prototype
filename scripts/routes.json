@@ -33,6 +33,8 @@
   { "view": "applications/apis.njk",         "url": "/account/applications/apis/" },
   { "view": "applications/api.njk",          "url": "/account/applications/api/" },
   { "view": "applications/delete.njk",       "url": "/account/applications/delete/" },
+  { "view": "applications/client-secret.njk",     "url": "/account/applications/client-secret/" },
+  { "view": "applications/client-secret-new.njk", "url": "/account/applications/client-secret/new/" },
   { "view": "applications/instructions.njk", "url": "/account/applications/instructions/" },
   { "view": "applications/secret-once.njk",  "url": "/account/applications/secret-once/" },
   { "view": "applications/unavailable.njk",  "url": "/account/applications/unavailable/" },

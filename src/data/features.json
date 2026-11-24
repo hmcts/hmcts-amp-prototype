@@ -33,6 +33,12 @@
       "name": "Application page in summary cards",
       "description": "The application page groups Try it now and Production into a summary card each, so everything stays on one page but each environment is in its own box.",
       "default": false
+    },
+    {
+      "id": "regenerate-client-secret",
+      "name": "Regenerate client secrets",
+      "description": "A Regenerate link beside the client secret on the application page makes a new secret, which is shown once; the old one stops working straight away. For Try it now, and for production too when 'Get production credentials yourself' is on. The real service had this for Try it now until October 2026, when it was taken out because the backend has no way to replace a secret.",
+      "default": false
     }
   ]
 }
