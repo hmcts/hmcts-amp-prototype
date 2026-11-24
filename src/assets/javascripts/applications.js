@@ -1,6 +1,7 @@
 import { applications, answers, productionRequests } from './store.js'
 import { features } from './features.js'
 import { FEATURE, coverage, statusTag } from './request-apis.js'
+import { on as selfServe, readyApis } from './production-access.js'
 
 const JOURNEY = 'new-application'
 // applications.maxPerUser in the real service's config.
@@ -494,6 +495,7 @@ function renderNewSecret (application) {
 // Phase 2, production requests for each API: where each of the application's APIs stands, and a
 // link to ask for those not yet in a request.
 function renderProductionApis (application) {
+  if (features.isOn(TABLE)) return renderProductionTable(application)
   const list = document.getElementById('production-apis-status')
   const more = document.getElementById('request-more-apis')
   if (!list || !more) return
@@ -511,6 +513,59 @@ function renderProductionApis (application) {
       : (open.length === 1 ? open[0].api.text : `its ${open.length} APIs`)
     document.getElementById('request-more-apis-link').setAttribute('href', `../../production-credentials/?application=${application.id}`)
   }
+}
+
+// Phase 2, 'production-apis-table': one row for each API, with its status and what to do next.
+// Once production credentials are made, the API's subscription key is folded under its row.
+const TABLE = 'production-apis-table'
+
+function renderProductionTable (application) {
+  const table = document.getElementById('production-apis-table')
+  const rows = document.getElementById('production-apis-table-rows')
+  if (!table || !rows) return
+  const keys = (application.production && application.production.apis) || []
+  const ready = selfServe() ? readyApis(application) : []
+  const link = (href, text, api, id) =>
+    `<a class="govuk-link" href="${href}"${id ? ` id="${id}"` : ''}>${text}<span class="govuk-visually-hidden"> for ${escapeHtml(api.text)}</span></a>`
+  const viewRequest = (entry) => link(`../../production-credentials/view/?reference=${entry.request.reference}`, 'View request', entry.api)
+
+  table.hidden = !application.apis.length
+  rows.innerHTML = coverage(application).map(entry => {
+    const { api } = entry
+    const key = keys.find(item => item.value === api.value)
+    let status, action
+    if (key) {
+      status = '<strong class="govuk-tag govuk-tag--turquoise">Ready to use</strong>'
+      action = entry.request ? viewRequest(entry) : ''
+    } else if (ready.some(item => item.value === api.value)) {
+      status = statusTag('APPROVED')
+      action = link(`../production/?id=${application.id}`, 'Get credentials', api)
+    } else if (entry.request) {
+      status = statusTag(entry.status)
+      action = viewRequest(entry)
+    } else {
+      status = '<strong class="govuk-tag govuk-tag--grey">Not requested</strong>'
+      action = link(`../../production-credentials/?application=${application.id}`, 'Request access', api)
+    }
+    const main = `
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">${escapeHtml(api.text)}</td>
+        <td class="govuk-table__cell">${status}</td>
+        <td class="govuk-table__cell govuk-table__cell--numeric">${action}</td>
+      </tr>`
+    return key ? main + `
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell" colspan="3">
+          <details class="govuk-details govuk-!-margin-bottom-0">
+            <summary class="govuk-details__summary"><span class="govuk-details__summary-text">Show production subscription key<span class="govuk-visually-hidden"> for ${escapeHtml(api.text)}</span></span></summary>
+            <div class="govuk-details__text">
+              <p class="govuk-body apim-credential govuk-!-font-weight-bold">${escapeHtml(key.subscriptionKey)}</p>
+              <p class="govuk-body govuk-!-margin-bottom-0">Send it in the <code>Ocp-Apim-Subscription-Key</code> header with every call to this API in production.</p>
+            </div>
+          </details>
+        </td>
+      </tr>` : main
+  }).join('')
 }
 
 // The real service's session notice, shown once on the next page: here kept in sessionStorage.
