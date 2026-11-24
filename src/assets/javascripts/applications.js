@@ -492,34 +492,9 @@ function renderNewSecret (application) {
   }
 }
 
-// Phase 2, production requests for each API: where each of the application's APIs stands, and a
-// link to ask for those not yet in a request.
+// Phase 2, production requests for each API: one row for each API, with its status and what to
+// do next. Once production credentials are made, the API's subscription key is folded under its row.
 function renderProductionApis (application) {
-  if (features.isOn(TABLE)) return renderProductionTable(application)
-  const list = document.getElementById('production-apis-status')
-  const more = document.getElementById('request-more-apis')
-  if (!list || !more) return
-  const entries = coverage(application)
-  list.innerHTML = entries.map(entry => row(entry.api.text, entry.request
-    ? `${statusTag(entry.status)} <a class="govuk-link" href="../../production-credentials/view/?reference=${entry.request.reference}">${entry.request.reference}</a>`
-    : 'Not requested yet')).join('')
-  list.hidden = !entries.length
-  const open = entries.filter(entry => !entry.request)
-  more.hidden = !open.length
-  if (open.length) {
-    const asked = entries.length > open.length
-    document.getElementById('request-more-apis-text').textContent = asked
-      ? (open.length === 1 ? open[0].api.text : `the other ${open.length} APIs`)
-      : (open.length === 1 ? open[0].api.text : `its ${open.length} APIs`)
-    document.getElementById('request-more-apis-link').setAttribute('href', `../../production-credentials/?application=${application.id}`)
-  }
-}
-
-// Phase 2, 'production-apis-table': one row for each API, with its status and what to do next.
-// Once production credentials are made, the API's subscription key is folded under its row.
-const TABLE = 'production-apis-table'
-
-function renderProductionTable (application) {
   const table = document.getElementById('production-apis-table')
   const rows = document.getElementById('production-apis-table-rows')
   if (!table || !rows) return

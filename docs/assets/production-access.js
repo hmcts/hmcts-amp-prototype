@@ -1,6 +1,6 @@
-import { applications, productionRequests, productionCredentials, user } from './store.js?v=a05a9855ac'
-import { features } from './features.js?v=a05a9855ac'
-import { FEATURE as PER_API, TAG_CLASS, coverage, requestApis } from './request-apis.js?v=a05a9855ac'
+import { applications, productionRequests, productionCredentials, user } from './store.js?v=336cbca241'
+import { features } from './features.js?v=336cbca241'
+import { FEATURE as PER_API, TAG_CLASS, coverage, requestApis } from './request-apis.js?v=336cbca241'
 
 // Phase 2: getting production credentials yourself (feature 'production-credentials-self-serve').
 // Not in the real service, where nothing moves a request on from Submitted and production
@@ -184,10 +184,10 @@ function renderApplicationProduction () {
   if (!ready || !section || !application) return
 
   const waiting = readyApis(application)
-  // With the production APIs table on, its Get credentials links do this job, so the box is left
+  // With requests for each API, the table's Get credentials links do this job, so the box is left
   // out; application-layout.js still flags the waiting credentials above the tabs.
   ready.dataset.waiting = waiting.length ? 'true' : ''
-  ready.innerHTML = waiting.length && !features.isOn('production-apis-table')
+  ready.innerHTML = waiting.length && !features.isOn(PER_API)
     ? `<div class="govuk-inset-text">
         Production access has been approved for ${list(waiting.map(api => api.text))}.
         <p class="govuk-body govuk-!-margin-top-2 govuk-!-margin-bottom-0"><a class="govuk-button govuk-!-margin-bottom-0" href="../production/?id=${application.id}" id="get-production-credentials">${application.production ? 'Add to your production credentials' : 'Get production credentials'}</a></p>
