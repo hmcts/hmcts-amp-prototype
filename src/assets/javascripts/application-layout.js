@@ -26,16 +26,6 @@ function tabs (sections) {
     if (i) section.classList.add('govuk-tabs__panel--hidden')
     wrapper.append(section)
   })
-
-  // Tab labels can't carry a tag, so credentials waiting to be collected are flagged above the tabs.
-  const ready = document.getElementById('production-ready')
-  if (ready && ready.dataset.waiting === 'true' && !ready.closest('[hidden]')) {
-    wrapper.insertAdjacentHTML('beforebegin', `
-      <div class="govuk-inset-text" id="production-ready-prompt">
-        Production access has been approved.
-        <a class="govuk-link" href="#production">Get your production credentials</a>.
-      </div>`)
-  }
 }
 
 // A heading inside a card drops a level, so the card's title stays the section's heading.

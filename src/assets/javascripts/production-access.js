@@ -184,9 +184,7 @@ function renderApplicationProduction () {
   if (!ready || !section || !application) return
 
   const waiting = readyApis(application)
-  // With requests for each API, the table's Get credentials links do this job, so the box is left
-  // out; application-layout.js still flags the waiting credentials above the tabs.
-  ready.dataset.waiting = waiting.length ? 'true' : ''
+  // With requests for each API, the table's Get credentials links do this job, so the box is left out.
   ready.innerHTML = waiting.length && !features.isOn(PER_API)
     ? `<div class="govuk-inset-text">
         Production access has been approved for ${list(waiting.map(api => api.text))}.
