@@ -1,8 +1,8 @@
-import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=336cbca241'
-import { features } from './features.js?v=336cbca241'
-import { ORGANISATION_TYPES, label, triageRows } from './triage.js?v=336cbca241'
-import { FEATURE, requestApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=336cbca241'
-import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=336cbca241'
+import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=c8d15f9643'
+import { features } from './features.js?v=c8d15f9643'
+import { ORGANISATION_TYPES, label, triageRows } from './triage.js?v=c8d15f9643'
+import { FEATURE, requestApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=c8d15f9643'
+import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=c8d15f9643'
 
 // The admin pages. The real service has an Admin page for the amp_admin app role, with nothing on it
 // yet, and no cross-user reads. The admin dashboard feature is a read-only design on top: made-up
