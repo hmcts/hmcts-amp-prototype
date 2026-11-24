@@ -1,7 +1,7 @@
 import { user, applications, productionRequests, DUMMY_USER } from './store.js'
 import { features } from './features.js'
-import { ORGANISATION_TYPES, label, triageRows } from './triage.js'
-import { FEATURE, requestApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js'
+import { answerRows } from './triage.js'
+import { FEATURE, requestApis, shownApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js'
 import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js'
 
 // The admin pages. The real service has an Admin page for the amp_admin app role, with nothing on it
@@ -16,8 +16,6 @@ const STATUS_TEXT = {
   APPROVED: 'Approved',
   DECLINED: 'Declined'
 }
-
-const CALL_VOLUMES = { low: 'Low', medium: 'Medium', high: 'High' }
 
 function page () {
   const path = window.location.pathname.replace(/index\.html$/, '')
@@ -280,23 +278,19 @@ function renderRequest (data) {
 
   const owner = data.user(found.ownerId)
   const application = data.application(found.applicationId)
-  document.getElementById('admin-request-who').innerHTML = summaryRows([
-    ['Requested by', owner ? `${link(`../../users/detail/?id=${encodeURIComponent(owner.id)}`, owner.name)}<br>${escapeHtml(owner.email)}` : 'Not known'],
-    ...(found.organisationType ? [['Organisation', escapeHtml(label(ORGANISATION_TYPES, found.organisationType))]] : []),
-    ['Team name (and organisation if external to HMCTS?)', escapeHtml(found.organisation)],
-    ['Application', application ? link(`../../applications/detail/?id=${application.id}`, application.name) : escapeHtml(found.applicationName)],
-    // With requests for each API, the APIs this request asks for, each with its own outcome.
-    ['APIs', perApi
-      ? `<ul class="govuk-list">${requestApis(found).map(api => `<li>${escapeHtml(api.text)} ${apiStatusTag(api.status)}</li>`).join('')}</ul>`
-      : escapeHtml(application ? application.apis.map(api => api.text).join(', ') || 'None' : (found.apis || []).join(', '))]
-  ])
+  document.getElementById('admin-request-owner').innerHTML = owner
+    ? `${link(`../../users/detail/?id=${encodeURIComponent(owner.id)}`, owner.name)} (${escapeHtml(owner.email)})`
+    : 'Not known'
 
-  document.getElementById('admin-request-answers').innerHTML = summaryRows([
-    ['Go-live date', formatDate(found.goLiveDate)],
-    ['Expected call volume', escapeHtml(CALL_VOLUMES[found.callVolume] || found.callVolume)],
-    ['Data request', escapeHtml(found.dataRequest)],
-    ...triageRows(found).map(row => [row.key, escapeHtml(row.value)])
-  ])
+  // The same as the requester's page, from the same rows; here the application links to its admin page.
+  const apis = document.getElementById('admin-request-apis')
+  if (apis && features.isOn(FEATURE)) {
+    apis.innerHTML = summaryRows(shownApis(found, application).map(api => [api.text, apiStatusTag(api.status)]))
+  }
+  document.getElementById('admin-request-answers').innerHTML = summaryRows(answerRows(found, formatDate).map(row =>
+    [row.key, row.key === 'Application' && application
+      ? link(`../../applications/detail/?id=${application.id}`, application.name)
+      : escapeHtml(row.value)]))
 
   if (features.isOn(SELF_SERVE)) renderDecision(found, owner, perApi)
 }

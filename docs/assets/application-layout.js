@@ -1,4 +1,4 @@
-import { features } from './features.js?v=c8d15f9643'
+import { features } from './features.js?v=45f227c7ad'
 
 // Phase 2: two layouts for the application page, to choose between. Both keep the application's
 // details above and Delete below, and split the rest into Try it now and Production.

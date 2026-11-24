@@ -3,6 +3,9 @@
 // web-api-marketplace. build.mjs turns them into the form's radios and checkboxes, and
 // production-credentials.js and admin.js use them to check and show the answers.
 
+/** "Expected call volume". */
+export const CALL_VOLUMES = { low: 'Low', medium: 'Medium', high: 'High' }
+
 /** "Organisation", which helps the Data Access Team triage a request. */
 export const ORGANISATION_TYPES = [
   { value: 'hmcts', text: 'HMCTS' },
@@ -59,4 +62,20 @@ export function triageRows (request) {
     rows.push({ key: 'Proposed outputs', value: request.proposedOutputs })
   }
   return rows
+}
+
+/**
+ * A request's answers as summary rows, in the order they were asked. The requester's request page
+ * and the admin request page both show them, so the two pages read the same.
+ */
+export function answerRows (request, formatDate) {
+  return [
+    { key: 'Application', value: request.applicationName },
+    ...(request.organisationType ? [{ key: 'Organisation', value: label(ORGANISATION_TYPES, request.organisationType) }] : []),
+    { key: 'Team name (and organisation if external to HMCTS?)', value: request.organisation },
+    { key: 'Go-live date', value: formatDate(request.goLiveDate) },
+    { key: 'Expected call volume', value: CALL_VOLUMES[request.callVolume] || request.callVolume },
+    { key: 'Data request', value: request.dataRequest },
+    ...triageRows(request)
+  ]
 }

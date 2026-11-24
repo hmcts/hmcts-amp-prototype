@@ -14,7 +14,7 @@
     
       
   
-  <link href="../../../assets/main.css?v=c8d15f9643" rel="stylesheet">
+  <link href="../../../assets/main.css?v=45f227c7ad" rel="stylesheet">
 
       </head>
   <body class="govuk-template__body">
@@ -234,21 +234,28 @@ data-module="govuk-service-navigation"
 </div>
 
 <div id="admin-content" hidden>
-  <span class="govuk-caption-l">Production credentials request</span>
-  <h1 class="govuk-heading-xl" id="admin-heading"></h1>
+  
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">Production credentials request</span>
+      <h1 class="govuk-heading-xl" id="admin-heading"></h1>
 
-  <p class="govuk-body">
-    Status: <strong class="govuk-tag govuk-tag--blue" id="admin-request-status"></strong>
-    <br>Submitted <span id="admin-request-submitted"></span>
-  </p>
+      <p class="govuk-body">
+        Status: <strong class="govuk-tag govuk-tag--blue" id="admin-request-status"></strong>
+        <br>Submitted <span id="admin-request-submitted"></span>
+        <br>Requested by <span id="admin-request-owner"></span>
+      </p>
 
-  <h2 class="govuk-heading-m">Who asked</h2>
-  <dl class="govuk-summary-list"                                               id="admin-request-who">
+      <div data-feature="production-request-per-api" hidden>
+        <h2 class="govuk-heading-m">APIs in this request</h2>
+        <dl class="govuk-summary-list" id="admin-request-apis"></dl>
+      </div>
+
+      <h2 class="govuk-heading-m">Their answers</h2>
+      <dl class="govuk-summary-list"                                               id="admin-request-answers">
 </dl>
-
-  <h2 class="govuk-heading-m">Their answers</h2>
-  <dl class="govuk-summary-list"                                               id="admin-request-answers">
-</dl>
+    </div>
+  </div>
 
   
   <div data-feature="production-credentials-self-serve" hidden>
@@ -359,6 +366,6 @@ data-module="govuk-service-navigation"
 
 
       
-  <script type="module" src="../../../assets/main.js?v=c8d15f9643"></script>
+  <script type="module" src="../../../assets/main.js?v=45f227c7ad"></script>
   </body>
 </html>

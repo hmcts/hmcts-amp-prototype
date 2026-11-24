@@ -40,6 +40,14 @@ export function requestApis (request) {
   return (request.apis || []).map(name => ({ value: null, text: typeof name === 'string' ? name : name.text, status: request.status }))
 }
 
+// The APIs to list on a request's page. A request that names none covers the whole application,
+// so its APIs are listed, each with the request's status.
+export function shownApis (request, application) {
+  const apis = requestApis(request)
+  if (apis.length || !application) return apis
+  return application.apis.map(api => ({ value: api.value, text: api.text, status: request.status }))
+}
+
 // One line for a request's status: the shared status when every API has the same one, otherwise
 // how many APIs have each, for example "1 approved, 1 submitted".
 export function statusSummary (request) {
