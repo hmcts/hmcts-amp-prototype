@@ -159,11 +159,23 @@ function set (id, value) {
   if (el) el.textContent = value
 }
 
-function row (key, value, extraClass) {
+function row (key, value, extraClass, rowClass) {
+  return `
+    <div class="govuk-summary-list__row${rowClass ? ' ' + rowClass : ''}">
+      <dt class="govuk-summary-list__key">${escapeHtml(key)}</dt>
+      <dd class="govuk-summary-list__value${extraClass ? ' ' + extraClass : ''}">${value}</dd>
+    </div>`
+}
+
+// A summary list row with one action link, as govukSummaryList renders it.
+function actionRow (key, value, action) {
   return `
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">${escapeHtml(key)}</dt>
-      <dd class="govuk-summary-list__value${extraClass ? ' ' + extraClass : ''}">${value}</dd>
+      <dd class="govuk-summary-list__value">${value}</dd>
+      <dd class="govuk-summary-list__actions">
+        <a class="govuk-link" href="${action.href}" id="${action.id}">${action.text}<span class="govuk-visually-hidden"> ${action.hidden}</span></a>
+      </dd>
     </div>`
 }
 
@@ -344,9 +356,14 @@ function renderDetail (application) {
 
   const auth = document.getElementById('authorisation-details')
   if (auth) {
+    const secret = `<span class="apim-credential" id="masked-secret">${escapeHtml(maskedSecret(application))}</span><br><span class="govuk-hint">Expires ${formatDate(secretExpiresAt(application))}</span>`
+    // Phase 2, regenerating the secret: a Regenerate action on its row, as the real service had.
+    const regenerate = features.isOn(REGENERATE)
     auth.innerHTML =
-      row('Client ID', `<span class="apim-credential" id="client-id">${application.clientId}</span>`) +
-      row('Client secret', `<span class="apim-credential" id="masked-secret">${escapeHtml(maskedSecret(application))}</span><br><span class="govuk-hint">Expires ${formatDate(secretExpiresAt(application))}</span>`)
+      row('Client ID', `<span class="apim-credential" id="client-id">${application.clientId}</span>`, '', regenerate ? 'govuk-summary-list__row--no-actions' : '') +
+      (regenerate
+        ? actionRow('Client secret', secret, { href: `../client-secret/?id=${application.id}`, text: 'Regenerate', hidden: 'client secret', id: 'regenerate-secret' })
+        : row('Client secret', secret))
   }
   renderAccess(application)
 
@@ -420,6 +437,58 @@ function renderDelete (application) {
     } catch (e) { /* the list still shows it has gone */ }
     window.location.href = '../'
   })
+}
+
+// Phase 2, 'regenerate-client-secret': replace the Try it now secret. The old one stops working at
+// once, as in Entra, and the new one is shown once on the next page, then never again.
+const REGENERATE = 'regenerate-client-secret'
+const NEW_SECRET_KEY = 'ampPrototypeNewSecret'
+
+function fillApplication (application, detailUrl) {
+  document.querySelectorAll('[data-application-name]').forEach(el => { el.textContent = application.name })
+  const crumbs = document.querySelectorAll('.govuk-breadcrumbs__link')
+  const last = crumbs[crumbs.length - 1]
+  if (last) { last.textContent = application.name; last.setAttribute('href', detailUrl) }
+}
+
+function renderRegenerate (application) {
+  const detailUrl = `../detail/?id=${application.id}`
+  fillApplication(application, detailUrl)
+  set('current-secret', maskedSecret(application))
+  const cancel = document.getElementById('cancel-regenerate')
+  if (cancel) cancel.setAttribute('href', detailUrl)
+  const form = document.getElementById('regenerate-form')
+  if (!form) return
+  form.addEventListener('submit', event => {
+    event.preventDefault()
+    const secret = applications.newSecret(application.id)
+    try {
+      window.sessionStorage.setItem(NEW_SECRET_KEY, JSON.stringify({ applicationId: application.id, secret }))
+    } catch (e) { /* the next page says the secret is no longer shown */ }
+    window.location.href = `new/?id=${application.id}`
+  })
+}
+
+function renderNewSecret (application) {
+  let shown = null
+  try {
+    shown = JSON.parse(window.sessionStorage.getItem(NEW_SECRET_KEY) || 'null')
+    window.sessionStorage.removeItem(NEW_SECRET_KEY)
+  } catch (e) { /* treated as already shown */ }
+  const secret = shown && shown.applicationId === application.id ? shown.secret : null
+  const once = document.getElementById('new-secret')
+  const gone = document.getElementById('new-secret-gone')
+  if (once) once.hidden = !secret
+  if (gone) gone.hidden = !!secret
+  if (secret) {
+    set('client-secret', secret)
+    set('new-secret-expires', formatDate(secretExpiresAt(application)))
+  }
+  const back = document.getElementById('back-to-application')
+  if (back) {
+    back.setAttribute('href', `../../detail/?id=${application.id}`)
+    back.textContent = `Back to ${application.name}`
+  }
 }
 
 // Phase 2, production requests for each API: where each of the application's APIs stands, and a
@@ -578,6 +647,14 @@ if (current === 'delete') {
 if (current === 'api') {
   const application = requireApplication('../')
   if (application) renderApi(application)
+}
+if (current === 'client-secret' && features.isOn(REGENERATE)) {
+  const application = requireApplication('../')
+  if (application) renderRegenerate(application)
+}
+if (current === 'client-secret/new' && features.isOn(REGENERATE)) {
+  const application = requireApplication('../../')
+  if (application) renderNewSecret(application)
 }
 if (current === 'detail') {
   const application = requireApplication('../')
