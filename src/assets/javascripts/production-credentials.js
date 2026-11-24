@@ -1,15 +1,13 @@
 import { applications, answers, productionRequests } from './store.js'
 import { features } from './features.js'
-import { DATA_COMBINED, DATA_RECIPIENTS, ORGANISATION_TYPES, OWN_TEAM_ONLY, label, triageRows } from './triage.js'
-import { FEATURE, coverage, latestRequest, requestApis, statusSummary, statusTag, uncovered } from './request-apis.js'
+import { CALL_VOLUMES, DATA_COMBINED, DATA_RECIPIENTS, ORGANISATION_TYPES, OWN_TEAM_ONLY, answerRows, label, triageRows } from './triage.js'
+import { FEATURE, coverage, latestRequest, requestApis, shownApis, statusSummary, statusTag, uncovered } from './request-apis.js'
 
 // Stands in for ProductionCredentialsController in web-api-marketplace: the same questions,
 // checks and messages, with the session and the backend replaced by browser storage.
 
 const JOURNEY = 'production-credentials'
 const MAX_LENGTH = 2000
-
-const CALL_VOLUMES = { low: 'Low', medium: 'Medium', high: 'High' }
 
 const STATUS_TEXT = {
   SUBMITTED: 'Submitted',
@@ -461,21 +459,13 @@ function renderView () {
   document.getElementById('request-submitted').textContent = formatDate(request.submittedAt)
   const apiList = document.getElementById('request-apis')
   if (apiList && perApi()) {
-    apiList.innerHTML = requestApis(request).map(api => `
+    apiList.innerHTML = shownApis(request, applications.find(request.applicationId)).map(api => `
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">${escapeHtml(api.text)}</dt>
         <dd class="govuk-summary-list__value">${statusTag(api.status)}</dd>
       </div>`).join('')
   }
-  document.getElementById('request-answers').innerHTML = summaryRowsHtml([
-    { key: 'Application', value: request.applicationName },
-    ...(request.organisationType ? [{ key: 'Organisation', value: label(ORGANISATION_TYPES, request.organisationType) }] : []),
-    { key: 'Team name (and organisation if external to HMCTS?)', value: request.organisation },
-    { key: 'Go-live date', value: formatDate(request.goLiveDate) },
-    { key: 'Expected call volume', value: CALL_VOLUMES[request.callVolume] || request.callVolume },
-    { key: 'Data request', value: request.dataRequest },
-    ...triageRows(request)
-  ])
+  document.getElementById('request-answers').innerHTML = summaryRowsHtml(answerRows(request, formatDate))
 }
 
 // My requests on the account page, which the real service renders from the backend.
