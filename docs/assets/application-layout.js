@@ -1,4 +1,4 @@
-import { features } from './features.js?v=2c31eb2e0f'
+import { features } from './features.js?v=a05a9855ac'
 
 // Phase 2: two layouts for the application page, to choose between. Both keep the application's
 // details above and Delete below, and split the rest into Try it now and Production.
@@ -29,7 +29,7 @@ function tabs (sections) {
 
   // Tab labels can't carry a tag, so credentials waiting to be collected are flagged above the tabs.
   const ready = document.getElementById('production-ready')
-  if (ready && ready.innerHTML.trim() && !ready.closest('[hidden]')) {
+  if (ready && ready.dataset.waiting === 'true' && !ready.closest('[hidden]')) {
     wrapper.insertAdjacentHTML('beforebegin', `
       <div class="govuk-inset-text" id="production-ready-prompt">
         Production access has been approved.

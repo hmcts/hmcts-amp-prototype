@@ -29,7 +29,7 @@ function tabs (sections) {
 
   // Tab labels can't carry a tag, so credentials waiting to be collected are flagged above the tabs.
   const ready = document.getElementById('production-ready')
-  if (ready && ready.innerHTML.trim() && !ready.closest('[hidden]')) {
+  if (ready && ready.dataset.waiting === 'true' && !ready.closest('[hidden]')) {
     wrapper.insertAdjacentHTML('beforebegin', `
       <div class="govuk-inset-text" id="production-ready-prompt">
         Production access has been approved.

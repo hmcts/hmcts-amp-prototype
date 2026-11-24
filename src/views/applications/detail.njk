@@ -72,10 +72,25 @@
     {# Phase 2, production requests for each API: instead of the two paragraphs above, where each API
        stands, and a link to ask for any API not yet in a request. applications.js fills it in. #}
     <div data-feature="production-request-per-api" hidden>
-      <dl class="govuk-summary-list" id="production-apis-status"></dl>
-      <p class="govuk-body" id="request-more-apis" hidden>
-        <a class="govuk-link" href="../../production-credentials/" id="request-more-apis-link">Request production access for <span id="request-more-apis-text">more APIs</span></a>
-      </p>
+      <div data-feature-off="production-apis-table">
+        <dl class="govuk-summary-list" id="production-apis-status"></dl>
+        <p class="govuk-body" id="request-more-apis" hidden>
+          <a class="govuk-link" href="../../production-credentials/" id="request-more-apis-link">Request production access for <span id="request-more-apis-text">more APIs</span></a>
+        </p>
+      </div>
+      {# Phase 2, 'production-apis-table': each API's status and what to do next, in one table, with
+         its production subscription key folded under it once made. applications.js fills it in. #}
+      <table class="govuk-table" id="production-apis-table" data-feature="production-apis-table" hidden>
+        <caption class="govuk-table__caption govuk-visually-hidden">Production access for each API</caption>
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">API</th>
+            <th scope="col" class="govuk-table__header">Status</th>
+            <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">Action</span></th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body" id="production-apis-table-rows"></tbody>
+      </table>
     </div>
 
     {# Phase 2, getting production credentials yourself: approved APIs waiting to be collected, and
@@ -85,8 +100,10 @@
       <div id="production-section" hidden>
         <h2 class="govuk-heading-m">Production credentials</h2>
         <dl class="govuk-summary-list" id="production-credentials"></dl>
-        <h3 class="govuk-heading-s">Production subscription keys</h3>
-        <dl class="govuk-summary-list" id="production-keys"></dl>
+        <div data-feature-off="production-apis-table">
+          <h3 class="govuk-heading-s">Production subscription keys</h3>
+          <dl class="govuk-summary-list" id="production-keys"></dl>
+        </div>
       </div>
     </div>
     </div>
