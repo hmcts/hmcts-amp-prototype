@@ -69,18 +69,12 @@
       When this application has been tested,
       <a class="govuk-link" href="../../production-credentials/" id="going-live">request production credentials</a> for it.
     </p>
-    {# Phase 2, production requests for each API: instead of the two paragraphs above, where each API
-       stands, and a link to ask for any API not yet in a request. applications.js fills it in. #}
+    {# Phase 2, production requests for each API: instead of the two paragraphs above, a table of
+       where each API stands and what to do next. #}
     <div data-feature="production-request-per-api" hidden>
-      <div data-feature-off="production-apis-table">
-        <dl class="govuk-summary-list" id="production-apis-status"></dl>
-        <p class="govuk-body" id="request-more-apis" hidden>
-          <a class="govuk-link" href="../../production-credentials/" id="request-more-apis-link">Request production access for <span id="request-more-apis-text">more APIs</span></a>
-        </p>
-      </div>
-      {# Phase 2, 'production-apis-table': each API's status and what to do next, in one table, with
-         its production subscription key folded under it once made. applications.js fills it in. #}
-      <table class="govuk-table" id="production-apis-table" data-feature="production-apis-table" hidden>
+      {# Each API's status and what to do next, with its production subscription key folded under
+         it once made. applications.js fills it in. #}
+      <table class="govuk-table" id="production-apis-table" hidden>
         <caption class="govuk-table__caption govuk-visually-hidden">Production access for each API</caption>
         <thead class="govuk-table__head">
           <tr class="govuk-table__row">
@@ -100,7 +94,7 @@
       <div id="production-section" hidden>
         <h2 class="govuk-heading-m">Production credentials</h2>
         <dl class="govuk-summary-list" id="production-credentials"></dl>
-        <div data-feature-off="production-apis-table">
+        <div data-feature-off="production-request-per-api">
           <h3 class="govuk-heading-s">Production subscription keys</h3>
           <dl class="govuk-summary-list" id="production-keys"></dl>
         </div>

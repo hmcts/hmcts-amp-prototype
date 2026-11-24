@@ -10,7 +10,7 @@
     {
       "id": "production-request-per-api",
       "name": "Production requests for each API",
-      "description": "A production credentials request covers the APIs you choose, and each API gets its own outcome, because the Data Access Team review each API in an application. You can ask for more of an application's APIs later, with your earlier answers filled in.",
+      "description": "A production credentials request covers the APIs you choose, and each API gets its own outcome, because the Data Access Team review each API in an application. You can ask for more of an application's APIs later, with your earlier answers filled in. On the application page, the Production section lists the APIs in a table with each one's status and what you can do next, and its production subscription key folded under it once made.",
       "default": false
     },
     {
@@ -32,15 +32,6 @@
       "id": "application-page-cards",
       "name": "Application page in summary cards",
       "description": "The application page groups Try it now and Production into a summary card each, so everything stays on one page but each environment is in its own box.",
-      "default": false
-    },
-    {
-      "id": "production-apis-table",
-      "name": "Production APIs in a table",
-      "description": "On the application page, the Production section lists the application's APIs in a table: each API's status and what you can do next (request access, view the request, get credentials), with its production subscription key folded under it once made.",
-      "requires": [
-        "production-request-per-api"
-      ],
       "default": false
     },
     {
