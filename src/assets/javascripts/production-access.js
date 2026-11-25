@@ -4,8 +4,8 @@ import { FEATURE as PER_API, TAG_CLASS, coverage, requestApis } from './request-
 
 // Phase 2: getting production credentials yourself (feature 'production-credentials-self-serve').
 // Not in the real service, where nothing moves a request on from Submitted and production
-// credentials are made by hand and shared outside the product. Here the Marketplace Team record
-// the Data Access Team's decision on the Admin pages (admin.js), the requester is emailed, and
+// credentials are made by hand and shared outside the product. Here the Data Access Team record
+// their decision on the Admin pages (admin.js), the requester is emailed, and
 // once signed in they generate their own production credentials, seeing the secret once.
 
 export const FEATURE = 'production-credentials-self-serve'

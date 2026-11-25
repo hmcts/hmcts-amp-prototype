@@ -1,8 +1,8 @@
-import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=ac92050896'
-import { features } from './features.js?v=ac92050896'
-import { answerRows } from './triage.js?v=ac92050896'
-import { FEATURE, requestApis, shownApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=ac92050896'
-import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=ac92050896'
+import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=12d4267d98'
+import { features } from './features.js?v=12d4267d98'
+import { answerRows } from './triage.js?v=12d4267d98'
+import { FEATURE, requestApis, shownApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=12d4267d98'
+import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=12d4267d98'
 
 // The admin pages. The real service has an Admin page for the amp_admin app role, with nothing on it
 // yet, and no cross-user reads. The admin dashboard feature is a read-only design on top: made-up
@@ -295,15 +295,15 @@ function renderRequest (data) {
   if (features.isOn(SELF_SERVE)) renderDecision(found, owner, perApi)
 }
 
-// Phase 2, getting production credentials yourself: record the Data Access Team's decision, which
-// in the real service would email the requester. Only requests made in this browser can change;
-// the made-up ones from admin-seed.json stay as they are.
+// Phase 2, getting production credentials yourself: the Data Access Team record their decision, which
+// in the real service would email the requester. Other admins see the decisions but not the form.
+// Only requests made in this browser can change; the made-up ones from admin-seed.json stay as they are.
 const DECISION_KEY = 'ampPrototypeDecisionRecorded'
 const DECISIONS = [
   { value: 'APPROVED', text: 'Approved', hint: 'The requester can then sign in and get production credentials.' },
-  { value: 'MORE_INFORMATION_NEEDED', text: 'More information needed', hint: 'Say what the Data Access Team need in the message.' },
+  { value: 'MORE_INFORMATION_NEEDED', text: 'More information needed', hint: 'Say what you need in the message.' },
   { value: 'DECLINED', text: 'Declined', hint: 'Say why in the message.' },
-  { value: 'IN_REVIEW', text: 'In review', hint: 'The Data Access Team have started reviewing it.' }
+  { value: 'IN_REVIEW', text: 'In review', hint: 'You have started reviewing it.' }
 ]
 
 function renderDecision (found, owner, perApi) {
@@ -345,6 +345,11 @@ function renderDecision (found, owner, perApi) {
       history.slice().reverse().map(d => [formatDate(d.decidedAt), statusTag(d.status), ...(perApi ? [escapeHtml((d.apis || []).join(', '))] : []), escapeHtml(d.note || 'None')]), '')}`
     : ''
 
+  if (!user.isDataAccessTeam()) {
+    container.innerHTML = '<p class="govuk-inset-text" id="decision-by-data-access-team">The Data Access Team record decisions on production requests.</p>'
+    return
+  }
+
   if (!local) {
     container.innerHTML = `
       <h2 class="govuk-heading-m">Record the decision</h2>
@@ -376,7 +381,7 @@ function renderDecision (found, owner, perApi) {
 
   container.innerHTML = `
     <h2 class="govuk-heading-m">Record the decision</h2>
-    <p class="govuk-body">Record what the Data Access Team decided. We email ${escapeHtml(who)} straight away. If it is approved, they sign in and get their own production credentials.</p>
+    <p class="govuk-body">Record your decision. We email ${escapeHtml(who)} straight away. If it is approved, they sign in and get their own production credentials.</p>
     <form novalidate id="decision-form">
       ${apiChoices}
       <div class="govuk-form-group">
@@ -480,6 +485,8 @@ async function start () {
     denied.hidden = false
     return
   }
+  const team = document.getElementById('admin-team')
+  if (team && user.isDataAccessTeam()) team.textContent = 'Data Access Team'
   if (dashboard) RENDERERS[current](await loadData())
   content.hidden = false
 }

@@ -62,7 +62,7 @@ document.addEventListener('click', event => {
   if (!action) return
   if (action.dataset.action === 'sign-in') {
     event.preventDefault()
-    user.signIn(action.dataset.role === 'admin')
+    user.signIn(action.dataset.role)
     window.location.href = action.getAttribute('href') || './'
   }
   if (action.dataset.action === 'sign-out') {
