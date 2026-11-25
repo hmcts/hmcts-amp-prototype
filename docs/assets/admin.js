@@ -1,8 +1,8 @@
-import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=12d4267d98'
-import { features } from './features.js?v=12d4267d98'
-import { answerRows } from './triage.js?v=12d4267d98'
-import { FEATURE, requestApis, shownApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=12d4267d98'
-import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=12d4267d98'
+import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=a60cb05ac2'
+import { features } from './features.js?v=a60cb05ac2'
+import { answerRows } from './triage.js?v=a60cb05ac2'
+import { FEATURE, requestApis, shownApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=a60cb05ac2'
+import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=a60cb05ac2'
 
 // The admin pages. The real service has an Admin page for the amp_admin app role, with nothing on it
 // yet, and no cross-user reads. The admin dashboard feature is a read-only design on top: made-up
@@ -318,7 +318,8 @@ function renderDecision (found, owner, perApi) {
   } catch (e) { /* no banner */ }
   if (recorded && recorded.reference === found.reference) {
     const email = decisionEmail(found, recorded.decision, `../../../account/production-credentials/view/?reference=${found.reference}`)
-    document.getElementById('admin-heading').insertAdjacentHTML('beforebegin', `
+    // At the top of the column, above the caption, as GOV.UK places a success banner.
+    document.getElementById('admin-heading').parentElement.insertAdjacentHTML('afterbegin', `
       <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="decision-banner-title" data-module="govuk-notification-banner" id="decision-recorded">
         <div class="govuk-notification-banner__header">
           <h2 class="govuk-notification-banner__title" id="decision-banner-title">Success</h2>
