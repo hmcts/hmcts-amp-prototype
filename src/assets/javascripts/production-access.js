@@ -200,11 +200,17 @@ function renderApplicationProduction () {
   const none = regenerate ? null : undefined
   document.getElementById('production-credentials').innerHTML =
     row('Client ID', `<span class="apim-credential" id="production-client-id">${production.clientId}</span>`, none) +
-    row('Client secret', `<span class="govuk-hint">Shown once, on ${formatDate(production.secretCreatedAt)}.</span>`,
+    row('Client secret', `<span class="apim-credential" id="production-masked-secret">${maskedSecret(production)}</span><br><span class="govuk-hint">Shown once, on ${formatDate(production.secretCreatedAt)}.</span>`,
       regenerate ? { href: `../production/regenerate/?id=${application.id}`, text: 'Regenerate', hidden: 'production client secret', id: 'regenerate-production-secret' } : none) +
     row('Created', formatDate(production.createdAt), none)
   document.getElementById('production-keys').innerHTML = production.apis.map(api =>
     row(api.text, `<span class="apim-credential">${api.subscriptionKey}</span>`)).join('')
+}
+
+// Like the Try it now secret: its first 3 characters, then ****. Credentials made by an older
+// prototype kept no hint, so they get a made-up one.
+function maskedSecret (production) {
+  return `${production.secretHint || production.clientId.replace(/-/g, '').slice(-3)}****`
 }
 
 // Your account: say when credentials are waiting, so someone who signs in from the email sees it.
