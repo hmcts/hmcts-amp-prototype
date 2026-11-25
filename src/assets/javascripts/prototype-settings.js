@@ -13,7 +13,7 @@ const EXAMPLE_APIS = [
 ]
 
 function addExample () {
-  if (!user.current()) user.signIn(false)
+  if (!user.current()) user.signIn()
   let application = applications.all().find(a => a.name === EXAMPLE_NAME)
   if (!application) {
     application = applications.create({

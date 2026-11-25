@@ -15,6 +15,11 @@ export const DUMMY_USER = {
 // The Marketplace Team hold AMP_ADMIN, which opens the Admin tab; everyone else has none.
 // An admin can do everything a user can.
 export const AMP_ADMIN = 'amp_admin'
+// Phase 2, getting production credentials yourself: the Data Access Team record their own decisions
+// on production requests (decided 25 Nov 2026), so they need an app role of their own. It is not in
+// the real service and its name is made up. It opens the Admin tab too.
+export const DATA_ACCESS_TEAM = 'amp_data_access'
+const ROLES = { admin: AMP_ADMIN, 'data-access': DATA_ACCESS_TEAM }
 
 const LAST_SIGN_IN_KEY = 'ampPrototypeLastSignIn'
 
@@ -41,17 +46,25 @@ export const user = {
     const wasAdmin = /^admin$/i.test(stored.role || '') || (stored.permissions || []).includes('admin')
     return { ...DUMMY_USER, roles: wasAdmin ? [AMP_ADMIN] : [] }
   },
-  // The example user, with the admin app role when asked for (BYPASS_ENTRA_ADMIN in the real service).
-  signIn (asAdmin) {
-    const signedIn = { ...DUMMY_USER, roles: asAdmin ? [AMP_ADMIN] : [] }
+  // The example user, with the admin app role when asked for (BYPASS_ENTRA_ADMIN in the real service),
+  // or the Data Access Team's: role is 'admin', 'data-access' or nothing.
+  signIn (role) {
+    const signedIn = { ...DUMMY_USER, roles: ROLES[role] ? [ROLES[role]] : [] }
     write(USER_KEY, signedIn)
     write(LAST_SIGN_IN_KEY, new Date().toISOString())
     return signedIn
   },
-  // isMarketplaceAdmin in the real service's AdminRole.ts.
+  // isMarketplaceAdmin in the real service's AdminRole.ts. Here the Data Access Team get the Admin pages too.
   isAdmin () {
+    return this.hasRole(AMP_ADMIN) || this.hasRole(DATA_ACCESS_TEAM)
+  },
+  // Only the Data Access Team record decisions on production requests.
+  isDataAccessTeam () {
+    return this.hasRole(DATA_ACCESS_TEAM)
+  },
+  hasRole (role) {
     const current = this.current()
-    return !!current && (current.roles || []).includes(AMP_ADMIN)
+    return !!current && (current.roles || []).includes(role)
   },
   // When the example user last signed in, for the admin pages' Users table.
   lastSignIn () {
@@ -157,8 +170,8 @@ export const productionRequests = {
     write(REQUESTS_KEY, this.all().concat(request))
     return request
   },
-  // Not in the real service, where nothing moves a request on: the Marketplace Team record the
-  // Data Access Team's decision (Phase 2, 'production-credentials-self-serve').
+  // Not in the real service, where nothing moves a request on: the Data Access Team record their
+  // decision (Phase 2, 'production-credentials-self-serve').
   update (reference, changes) {
     write(REQUESTS_KEY, this.all().map(request => (request.reference === reference ? { ...request, ...changes } : request)))
     return this.find(reference)

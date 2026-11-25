@@ -1,14 +1,14 @@
-import { initAll } from './govuk-frontend.min.js?v=ac92050896'
+import { initAll } from './govuk-frontend.min.js?v=12d4267d98'
 // First, so a ?features= link is applied before any page script checks a feature.
-import './features.js?v=ac92050896'
-import { user } from './store.js?v=ac92050896'
-import './applications.js?v=ac92050896'
-import './production-credentials.js?v=ac92050896'
-import './production-access.js?v=ac92050896'
+import './features.js?v=12d4267d98'
+import { user } from './store.js?v=12d4267d98'
+import './applications.js?v=12d4267d98'
+import './production-credentials.js?v=12d4267d98'
+import './production-access.js?v=12d4267d98'
 // After the page scripts have filled the application page, and before initAll starts the tabs.
-import './application-layout.js?v=ac92050896'
-import './admin.js?v=ac92050896'
-import './prototype-settings.js?v=ac92050896'
+import './application-layout.js?v=12d4267d98'
+import './admin.js?v=12d4267d98'
+import './prototype-settings.js?v=12d4267d98'
 
 initAll()
 
@@ -62,7 +62,7 @@ document.addEventListener('click', event => {
   if (!action) return
   if (action.dataset.action === 'sign-in') {
     event.preventDefault()
-    user.signIn(action.dataset.role === 'admin')
+    user.signIn(action.dataset.role)
     window.location.href = action.getAttribute('href') || './'
   }
   if (action.dataset.action === 'sign-out') {
