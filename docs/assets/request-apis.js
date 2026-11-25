@@ -1,4 +1,4 @@
-import { productionRequests } from './store.js?v=a60cb05ac2'
+import { productionRequests } from './store.js?v=7b46bc9db9'
 
 // Phase 2: production requests for each API (feature 'production-request-per-api'). Not in the
 // real service, where a request belongs to a whole application and records no APIs. Here a

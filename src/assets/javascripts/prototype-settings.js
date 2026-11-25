@@ -41,7 +41,7 @@ function addExample () {
       dataCombined: 'no',
       submittedAt: daysAgo(12),
       // How the Court Schedule approval was recorded, for getting production credentials yourself.
-      decisions: [{ status: 'APPROVED', apis: ['Court Schedule'], note: '', decidedAt: daysAgo(3) }]
+      decisions: [{ status: 'APPROVED', apis: ['Court Schedule'], note: '', decidedAt: daysAgo(3), decidedBy: { name: 'Alex Morgan', email: 'alex.morgan@example.com' } }]
     })
   }
   const settings = window.location.pathname.replace(/prototype-settings\/.*$/, '')
