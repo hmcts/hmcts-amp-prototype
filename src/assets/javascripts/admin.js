@@ -318,7 +318,8 @@ function renderDecision (found, owner, perApi) {
   } catch (e) { /* no banner */ }
   if (recorded && recorded.reference === found.reference) {
     const email = decisionEmail(found, recorded.decision, `../../../account/production-credentials/view/?reference=${found.reference}`)
-    document.getElementById('admin-heading').insertAdjacentHTML('beforebegin', `
+    // At the top of the column, above the caption, as GOV.UK places a success banner.
+    document.getElementById('admin-heading').parentElement.insertAdjacentHTML('afterbegin', `
       <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="decision-banner-title" data-module="govuk-notification-banner" id="decision-recorded">
         <div class="govuk-notification-banner__header">
           <h2 class="govuk-notification-banner__title" id="decision-banner-title">Success</h2>

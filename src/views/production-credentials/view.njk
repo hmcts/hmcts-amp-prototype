@@ -17,7 +17,7 @@
     <h1 class="govuk-heading-xl" id="request-reference">{{ request.reference }}</h1>
 
     <p class="govuk-body">
-      Status: {{ govukTag({ text: status, classes: "govuk-tag--blue", attributes: { id: "request-status" } }) }}
+      Status: {{ govukTag({ text: status, classes: "govuk-tag--blue apim-tag--nowrap", attributes: { id: "request-status" } }) }}
       <br>Submitted <span id="request-submitted">{{ request.submittedAt | date }}</span>
     </p>
 
