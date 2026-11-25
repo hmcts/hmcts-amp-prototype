@@ -342,8 +342,9 @@ function renderDecision (found, owner, perApi) {
 
   const history = found.decisions || []
   document.getElementById('admin-request-history').innerHTML = history.length
-    ? `<h2 class="govuk-heading-m">Decisions</h2>${table('Decisions', ['Date', 'Decision', ...(perApi ? ['APIs'] : []), 'Message to the requester'],
-      history.slice().reverse().map(d => [formatDate(d.decidedAt), statusTag(d.status), ...(perApi ? [escapeHtml((d.apis || []).join(', '))] : []), escapeHtml(d.note || 'None')]), '')}`
+    ? `<h2 class="govuk-heading-m">Decisions</h2>${table('Decisions', ['Date', 'Decision', ...(perApi ? ['APIs'] : []), 'Recorded by', 'Message to the requester'],
+      history.slice().reverse().map(d => [formatDate(d.decidedAt), statusTag(d.status), ...(perApi ? [escapeHtml((d.apis || []).join(', '))] : []),
+        d.decidedBy ? escapeHtml(d.decidedBy.name) : 'Not recorded', escapeHtml(d.note || 'None')]), '')}`
     : ''
 
   if (!user.isDataAccessTeam()) {
@@ -414,7 +415,9 @@ function renderDecision (found, owner, perApi) {
     showFormErrors(form, errors)
     if (errors.length) return
 
-    const decision = { status, note, apis: perApi ? chosen : [], decidedAt: new Date().toISOString() }
+    // Who recorded it, kept with the decision for the history and the audit trail.
+    const me = user.current()
+    const decision = { status, note, apis: perApi ? chosen : [], decidedAt: new Date().toISOString(), decidedBy: { name: me.name, email: me.email } }
     const changes = { decisions: history.concat(decision) }
     if (perApi) {
       const items = found.apiItems.map(api => (chosen.includes(api.text) ? { ...api, status } : api))

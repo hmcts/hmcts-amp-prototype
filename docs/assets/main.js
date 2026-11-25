@@ -1,14 +1,14 @@
-import { initAll } from './govuk-frontend.min.js?v=a60cb05ac2'
+import { initAll } from './govuk-frontend.min.js?v=7b46bc9db9'
 // First, so a ?features= link is applied before any page script checks a feature.
-import './features.js?v=a60cb05ac2'
-import { user } from './store.js?v=a60cb05ac2'
-import './applications.js?v=a60cb05ac2'
-import './production-credentials.js?v=a60cb05ac2'
-import './production-access.js?v=a60cb05ac2'
+import './features.js?v=7b46bc9db9'
+import { user } from './store.js?v=7b46bc9db9'
+import './applications.js?v=7b46bc9db9'
+import './production-credentials.js?v=7b46bc9db9'
+import './production-access.js?v=7b46bc9db9'
 // After the page scripts have filled the application page, and before initAll starts the tabs.
-import './application-layout.js?v=a60cb05ac2'
-import './admin.js?v=a60cb05ac2'
-import './prototype-settings.js?v=a60cb05ac2'
+import './application-layout.js?v=7b46bc9db9'
+import './admin.js?v=7b46bc9db9'
+import './prototype-settings.js?v=7b46bc9db9'
 
 initAll()
 

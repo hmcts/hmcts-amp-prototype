@@ -1,8 +1,8 @@
-import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=a60cb05ac2'
-import { features } from './features.js?v=a60cb05ac2'
-import { answerRows } from './triage.js?v=a60cb05ac2'
-import { FEATURE, requestApis, shownApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=a60cb05ac2'
-import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=a60cb05ac2'
+import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=7b46bc9db9'
+import { features } from './features.js?v=7b46bc9db9'
+import { answerRows } from './triage.js?v=7b46bc9db9'
+import { FEATURE, requestApis, shownApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=7b46bc9db9'
+import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=7b46bc9db9'
 
 // The admin pages. The real service has an Admin page for the amp_admin app role, with nothing on it
 // yet, and no cross-user reads. The admin dashboard feature is a read-only design on top: made-up
@@ -342,8 +342,9 @@ function renderDecision (found, owner, perApi) {
 
   const history = found.decisions || []
   document.getElementById('admin-request-history').innerHTML = history.length
-    ? `<h2 class="govuk-heading-m">Decisions</h2>${table('Decisions', ['Date', 'Decision', ...(perApi ? ['APIs'] : []), 'Message to the requester'],
-      history.slice().reverse().map(d => [formatDate(d.decidedAt), statusTag(d.status), ...(perApi ? [escapeHtml((d.apis || []).join(', '))] : []), escapeHtml(d.note || 'None')]), '')}`
+    ? `<h2 class="govuk-heading-m">Decisions</h2>${table('Decisions', ['Date', 'Decision', ...(perApi ? ['APIs'] : []), 'Recorded by', 'Message to the requester'],
+      history.slice().reverse().map(d => [formatDate(d.decidedAt), statusTag(d.status), ...(perApi ? [escapeHtml((d.apis || []).join(', '))] : []),
+        d.decidedBy ? escapeHtml(d.decidedBy.name) : 'Not recorded', escapeHtml(d.note || 'None')]), '')}`
     : ''
 
   if (!user.isDataAccessTeam()) {
@@ -414,7 +415,9 @@ function renderDecision (found, owner, perApi) {
     showFormErrors(form, errors)
     if (errors.length) return
 
-    const decision = { status, note, apis: perApi ? chosen : [], decidedAt: new Date().toISOString() }
+    // Who recorded it, kept with the decision for the history and the audit trail.
+    const me = user.current()
+    const decision = { status, note, apis: perApi ? chosen : [], decidedAt: new Date().toISOString(), decidedBy: { name: me.name, email: me.email } }
     const changes = { decisions: history.concat(decision) }
     if (perApi) {
       const items = found.apiItems.map(api => (chosen.includes(api.text) ? { ...api, status } : api))

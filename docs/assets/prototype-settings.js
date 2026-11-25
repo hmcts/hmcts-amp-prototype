@@ -1,6 +1,6 @@
-import { features } from './features.js?v=a60cb05ac2'
-import { applications, productionRequests, user } from './store.js?v=a60cb05ac2'
-import { OWN_TEAM_ONLY } from './triage.js?v=a60cb05ac2'
+import { features } from './features.js?v=7b46bc9db9'
+import { applications, productionRequests, user } from './store.js?v=7b46bc9db9'
+import { OWN_TEAM_ONLY } from './triage.js?v=7b46bc9db9'
 
 // Not in the real service: an application part-way through going live, to show production
 // requests for each API without filling in the forms first. Added once; after that the button
@@ -41,7 +41,7 @@ function addExample () {
       dataCombined: 'no',
       submittedAt: daysAgo(12),
       // How the Court Schedule approval was recorded, for getting production credentials yourself.
-      decisions: [{ status: 'APPROVED', apis: ['Court Schedule'], note: '', decidedAt: daysAgo(3) }]
+      decisions: [{ status: 'APPROVED', apis: ['Court Schedule'], note: '', decidedAt: daysAgo(3), decidedBy: { name: 'Alex Morgan', email: 'alex.morgan@example.com' } }]
     })
   }
   const settings = window.location.pathname.replace(/prototype-settings\/.*$/, '')

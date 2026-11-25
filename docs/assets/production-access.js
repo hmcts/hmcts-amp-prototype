@@ -1,6 +1,6 @@
-import { applications, productionRequests, productionCredentials, user } from './store.js?v=a60cb05ac2'
-import { features } from './features.js?v=a60cb05ac2'
-import { FEATURE as PER_API, TAG_CLASS, coverage, requestApis } from './request-apis.js?v=a60cb05ac2'
+import { applications, productionRequests, productionCredentials, user } from './store.js?v=7b46bc9db9'
+import { features } from './features.js?v=7b46bc9db9'
+import { FEATURE as PER_API, TAG_CLASS, coverage, requestApis } from './request-apis.js?v=7b46bc9db9'
 
 // Phase 2: getting production credentials yourself (feature 'production-credentials-self-serve').
 // Not in the real service, where nothing moves a request on from Submitted and production
