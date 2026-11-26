@@ -30,6 +30,16 @@
         <dl class="govuk-summary-list" id="admin-request-apis"></dl>
       </div>
 
+      {# Phase 2, getting production credentials yourself: the APIs being asked for, so the Data Access
+         Team need not open the application to see them. Without requests for each API, a request is
+         for its application's APIs, which the real service's request page does not name. #}
+      <div data-feature="production-credentials-self-serve" hidden>
+        <div data-feature-off="production-request-per-api">
+          <h2 class="govuk-heading-m">APIs in this request</h2>
+          <ul class="govuk-list" id="admin-request-api-names"></ul>
+        </div>
+      </div>
+
       <h2 class="govuk-heading-m">Their answers</h2>
       {{ govukSummaryList({ rows: [], attributes: { id: "admin-request-answers" } }) }}
     </div>
