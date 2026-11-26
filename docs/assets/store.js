@@ -13,13 +13,10 @@ export const DUMMY_USER = {
 
 // A signed-in user carries `roles`, as in the real service: the app roles Entra put in the ID token.
 // The Marketplace Team hold AMP_ADMIN, which opens the Admin tab; everyone else has none.
-// An admin can do everything a user can.
+// An admin can do everything a user can. There are two kinds of user, consumers and admins: in
+// Phase 2 the Data Access Team are admins too, and admins record decisions on production requests
+// (decided 26 Nov 2026).
 export const AMP_ADMIN = 'amp_admin'
-// Phase 2, getting production credentials yourself: the Data Access Team record their own decisions
-// on production requests (decided 25 Nov 2026), so they need an app role of their own. It is not in
-// the real service and its name is made up. It opens the Admin tab too.
-export const DATA_ACCESS_TEAM = 'amp_data_access'
-const ROLES = { admin: AMP_ADMIN, 'data-access': DATA_ACCESS_TEAM }
 
 const LAST_SIGN_IN_KEY = 'ampPrototypeLastSignIn'
 
@@ -46,21 +43,17 @@ export const user = {
     const wasAdmin = /^admin$/i.test(stored.role || '') || (stored.permissions || []).includes('admin')
     return { ...DUMMY_USER, roles: wasAdmin ? [AMP_ADMIN] : [] }
   },
-  // The example user, with the admin app role when asked for (BYPASS_ENTRA_ADMIN in the real service),
-  // or the Data Access Team's: role is 'admin', 'data-access' or nothing.
+  // The example user, with the admin app role when asked for (BYPASS_ENTRA_ADMIN in the real service):
+  // role is 'admin' or nothing.
   signIn (role) {
-    const signedIn = { ...DUMMY_USER, roles: ROLES[role] ? [ROLES[role]] : [] }
+    const signedIn = { ...DUMMY_USER, roles: role === 'admin' ? [AMP_ADMIN] : [] }
     write(USER_KEY, signedIn)
     write(LAST_SIGN_IN_KEY, new Date().toISOString())
     return signedIn
   },
-  // isMarketplaceAdmin in the real service's AdminRole.ts. Here the Data Access Team get the Admin pages too.
+  // isMarketplaceAdmin in the real service's AdminRole.ts.
   isAdmin () {
-    return this.hasRole(AMP_ADMIN) || this.hasRole(DATA_ACCESS_TEAM)
-  },
-  // Only the Data Access Team record decisions on production requests.
-  isDataAccessTeam () {
-    return this.hasRole(DATA_ACCESS_TEAM)
+    return this.hasRole(AMP_ADMIN)
   },
   hasRole (role) {
     const current = this.current()

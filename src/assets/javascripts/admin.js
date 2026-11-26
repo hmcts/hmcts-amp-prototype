@@ -308,8 +308,8 @@ function renderRequest (data) {
   if (features.isOn(SELF_SERVE)) renderDecision(found, owner, perApi)
 }
 
-// Phase 2, getting production credentials yourself: the Data Access Team record their decision, which
-// in the real service would email the requester. Other admins see the decisions but not the form.
+// Phase 2, getting production credentials yourself: an admin (the Data Access Team are admins) records
+// the decision, which in the real service would email the requester.
 // Only requests made in this browser can change; the made-up ones from admin-seed.json stay as they are.
 const DECISION_KEY = 'ampPrototypeDecisionRecorded'
 const DECISIONS = [
@@ -359,11 +359,6 @@ function renderDecision (found, owner, perApi) {
       history.slice().reverse().map(d => [formatDate(d.decidedAt), statusTag(d.status), ...(perApi ? [escapeHtml((d.apis || []).join(', '))] : []),
         d.decidedBy ? escapeHtml(d.decidedBy.name) : 'Not recorded', escapeHtml(d.note || 'None')]), '')}`
     : ''
-
-  if (!user.isDataAccessTeam()) {
-    container.innerHTML = '<p class="govuk-inset-text" id="decision-by-data-access-team">The Data Access Team record decisions on production requests.</p>'
-    return
-  }
 
   if (!local) {
     container.innerHTML = `
@@ -516,8 +511,6 @@ async function start () {
     denied.hidden = false
     return
   }
-  const team = document.getElementById('admin-team')
-  if (team && user.isDataAccessTeam()) team.textContent = 'Data Access Team'
   if (dashboard) RENDERERS[current](await loadData())
   content.hidden = false
 }

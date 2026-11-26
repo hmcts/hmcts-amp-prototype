@@ -14,7 +14,7 @@ export default [
   {
     "id": "production-credentials-self-serve",
     "name": "Get production credentials yourself",
-    "description": "The Data Access Team record their decision on a production request on the Admin pages, signed in with a role of their own. The requester is emailed, signs in and generates their own production credentials, with the client secret shown once.",
+    "description": "Admins, who include the Data Access Team, record the decision on a production request on the Admin pages. The requester is emailed, signs in and generates their own production credentials, with the client secret shown once.",
     "requires": [
       "admin-dashboard"
     ],
