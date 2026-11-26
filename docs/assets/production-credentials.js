@@ -1,7 +1,7 @@
-import { applications, answers, productionRequests } from './store.js?v=7b46bc9db9'
-import { features } from './features.js?v=7b46bc9db9'
-import { CALL_VOLUMES, DATA_COMBINED, DATA_RECIPIENTS, ORGANISATION_TYPES, OWN_TEAM_ONLY, answerRows, label, triageRows } from './triage.js?v=7b46bc9db9'
-import { FEATURE, coverage, latestRequest, requestApis, shownApis, statusSummary, statusTag, uncovered } from './request-apis.js?v=7b46bc9db9'
+import { applications, answers, productionRequests } from './store.js?v=2787df20d9'
+import { features } from './features.js?v=2787df20d9'
+import { CALL_VOLUMES, DATA_COMBINED, DATA_RECIPIENTS, ORGANISATION_TYPES, OWN_TEAM_ONLY, answerRows, label, triageRows } from './triage.js?v=2787df20d9'
+import { FEATURE, coverage, latestRequest, requestApis, shownApis, statusSummary, statusTag, uncovered } from './request-apis.js?v=2787df20d9'
 
 // Stands in for ProductionCredentialsController in web-api-marketplace: the same questions,
 // checks and messages, with the session and the backend replaced by browser storage.

@@ -1,3 +1,4 @@
+import { CharacterCount } from './govuk-frontend.min.js'
 import { user, applications, productionRequests, DUMMY_USER } from './store.js'
 import { features } from './features.js'
 import { answerRows } from './triage.js'
@@ -392,14 +393,17 @@ function renderDecision (found, owner, perApi) {
           <div class="govuk-radios" data-module="govuk-radios">${radios}</div>
         </fieldset>
       </div>
-      <div class="govuk-form-group">
+      <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength="${NOTE_MAX}" id="decision-note-count">
         <label class="govuk-label govuk-label--s" for="decision-note">Message to the requester</label>
         <div class="govuk-hint" id="decision-note-hint">Goes in the email and on their request page. Optional when approving.</div>
-        <textarea class="govuk-textarea" id="decision-note" name="decision-note" rows="4" aria-describedby="decision-note-hint"></textarea>
+        <textarea class="govuk-textarea govuk-js-character-count" id="decision-note" name="decision-note" rows="4" aria-describedby="decision-note-hint decision-note-info"></textarea>
+        <div id="decision-note-info" class="govuk-hint govuk-character-count__message">You can enter up to 2,000 characters</div>
       </div>
       <button type="submit" class="govuk-button" data-module="govuk-button" id="decision-save">Record decision and email ${escapeHtml(owner ? owner.name : 'the requester')}</button>
     </form>`
 
+  // The page is filled after initAll has run, so the character count is started here.
+  new CharacterCount(document.getElementById('decision-note-count')) // eslint-disable-line no-new
   const form = document.getElementById('decision-form')
   form.addEventListener('submit', event => {
     event.preventDefault()
@@ -409,8 +413,15 @@ function renderDecision (found, owner, perApi) {
     const errors = []
     if (perApi && !chosen.length) errors.push({ name: 'decision-apis', text: 'Select the APIs this decision is for' })
     if (!status) errors.push({ name: 'decision', text: 'Select the decision' })
-    if ((status === 'DECLINED' || status === 'MORE_INFORMATION_NEEDED') && !note) {
+    // A message is needed for More information needed and Declined, and then has a minimum length.
+    // It is optional for the others, but never longer than the maximum.
+    const needed = status === 'DECLINED' || status === 'MORE_INFORMATION_NEEDED'
+    if (needed && !note) {
       errors.push({ name: 'decision-note', text: status === 'DECLINED' ? 'Enter a message saying why it was declined' : 'Enter a message saying what information is needed' })
+    } else if (needed && note.length < NOTE_MIN) {
+      errors.push({ name: 'decision-note', text: 'Message must be 10 characters or more' })
+    } else if (note.length > NOTE_MAX) {
+      errors.push({ name: 'decision-note', text: 'Message must be 2,000 characters or less' })
     }
     showFormErrors(form, errors)
     if (errors.length) return
@@ -434,6 +445,10 @@ function renderDecision (found, owner, perApi) {
     window.location.reload()
   })
 }
+
+// The length of the message to the requester. The minimum applies only when a message is needed.
+const NOTE_MIN = 10
+const NOTE_MAX = 2000
 
 // The markup the GOV.UK macros render when given an errorMessage, added after the page has loaded.
 function showFormErrors (form, errors) {
