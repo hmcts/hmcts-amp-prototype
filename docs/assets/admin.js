@@ -1,9 +1,9 @@
-import { CharacterCount } from './govuk-frontend.min.js?v=2787df20d9'
-import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=2787df20d9'
-import { features } from './features.js?v=2787df20d9'
-import { answerRows } from './triage.js?v=2787df20d9'
-import { FEATURE, requestApis, shownApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=2787df20d9'
-import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=2787df20d9'
+import { CharacterCount } from './govuk-frontend.min.js?v=69fbd9b22c'
+import { user, applications, productionRequests, DUMMY_USER } from './store.js?v=69fbd9b22c'
+import { features } from './features.js?v=69fbd9b22c'
+import { answerRows } from './triage.js?v=69fbd9b22c'
+import { FEATURE, requestApis, shownApis, statusSummary, statusTag as apiStatusTag } from './request-apis.js?v=69fbd9b22c'
+import { FEATURE as SELF_SERVE, decisionEmail } from './production-access.js?v=69fbd9b22c'
 
 // The admin pages. The real service has an Admin page for the amp_admin app role, with nothing on it
 // yet, and no cross-user reads. The admin dashboard feature is a read-only design on top: made-up
@@ -287,6 +287,18 @@ function renderRequest (data) {
   const apis = document.getElementById('admin-request-apis')
   if (apis && features.isOn(FEATURE)) {
     apis.innerHTML = summaryRows(shownApis(found, application).map(api => [api.text, apiStatusTag(api.status)]))
+  }
+  // Without requests for each API: the names only, each linked to the catalogue.
+  const names = document.getElementById('admin-request-api-names')
+  if (names && features.isOn(SELF_SERVE)) {
+    // A request names its APIs only, so their catalogue pages come from the application's.
+    const items = shownApis(found, application).map(api => ({
+      text: api.text,
+      value: api.value || ((application && application.apis.find(a => a.text === api.text)) || {}).value
+    }))
+    names.innerHTML = items.length
+      ? items.map(api => `<li>${api.value ? link(`../../../api-catalogue/${encodeURIComponent(api.value)}/`, api.text) : escapeHtml(api.text)}</li>`).join('')
+      : '<li>Not known</li>'
   }
   document.getElementById('admin-request-answers').innerHTML = summaryRows(answerRows(found, formatDate).map(row =>
     [row.key, row.key === 'Application' && application
